@@ -26,7 +26,7 @@ FIRST_KEYWORD = re.compile(r"[A-Za-z_]+")
 class QueryLimits:
     max_rows: int = 100
     timeout_seconds: float = 10.0
-    max_vm_steps: int = 20_000_000
+    max_vm_steps: int = 50_000_000
     max_sql_chars: int = 20_000
     max_columns: int = 32
     max_cell_chars: int = 2_000

@@ -7,7 +7,11 @@ from zoneinfo import ZoneInfo
 
 import httpx
 from langchain.agents import create_agent
-from langchain.agents.middleware import ModelCallLimitMiddleware, ToolCallLimitMiddleware
+from langchain.agents.middleware import (
+    ModelCallLimitMiddleware,
+    ToolCallLimitMiddleware,
+    wrap_model_call,
+)
 from langchain.agents.middleware.model_call_limit import ModelCallLimitExceededError
 from langchain.agents.middleware.tool_call_limit import ToolCallLimitExceededError
 from langchain_core.callbacks import BaseCallbackHandler
@@ -32,6 +36,14 @@ class CallCounter(BaseCallbackHandler):
         self.calls += 1
 
 
+@wrap_model_call
+def require_initial_query(request, handler):
+    """Exige consulta na primeira chamada; a resposta final continua livre."""
+    if not any(isinstance(message, ToolMessage) for message in request.messages):
+        request = request.override(tool_choice="required")
+    return handler(request)
+
+
 def build_model(settings: Settings) -> ChatOpenRouter:
     # max_retries=0 sozinho deixa o SDK usar retries padrão em erros 5xx.
     # retry_config=None desabilita explicitamente esses retries no SDK.
@@ -43,7 +55,7 @@ def build_model(settings: Settings) -> ChatOpenRouter:
         max_retries=0,
         timeout=45_000,
         temperature=0,
-        max_tokens=4096,
+        max_tokens=8192,
         openrouter_provider={"require_parameters": True},
     )
 
@@ -110,6 +122,7 @@ def ask_question(
             middleware=[
                 ModelCallLimitMiddleware(run_limit=settings.max_model_calls, exit_behavior="error"),
                 ToolCallLimitMiddleware(run_limit=3, exit_behavior="error"),
+                require_initial_query,
             ],
         )
         # Streaming de estado captura consultas mesmo se uma chamada posterior falhar.
@@ -140,7 +153,15 @@ def ask_question(
                 if entry["id"] in results:
                     entry["result"] = results[entry["id"]]
         if not any(entry.get("result", {}).get("ok") for entry in trace):
-            return failure("no_query_result", "O modelo não obteve uma consulta válida no banco.")
+            failed = failure("no_query_result", "O modelo não obteve uma consulta válida no banco.")
+            if final_messages and isinstance(final_messages[-1], AIMessage):
+                final = final_messages[-1]
+                failed["diagnostics"] = {
+                    "finish_reason": final.response_metadata.get("finish_reason"),
+                    "model": final.response_metadata.get("model_name"),
+                    "usage": final.usage_metadata,
+                }
+            return failed
         if not final_messages or not isinstance(final_messages[-1], AIMessage):
             return failure("empty_answer", "O modelo não apresentou uma resposta final.")
         answer = final_messages[-1].text.strip()

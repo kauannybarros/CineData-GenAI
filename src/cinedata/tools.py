@@ -1,4 +1,4 @@
-"""Ferramenta LangChain para o futuro agente Text-to-SQL."""
+"""Ferramenta LangChain de consultas SQL sobre a camada Gold."""
 
 from pathlib import Path
 

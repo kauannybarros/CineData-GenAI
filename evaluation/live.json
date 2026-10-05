@@ -1,0 +1,1892 @@
+{
+  "mode": "live",
+  "reference_date": "2026-10-04",
+  "database_sha256": "410f5beef6ab9fb34b9044d5dd191f56f3f0dc30a56e6432386ecef0d977b012",
+  "model": "openrouter/free",
+  "call_budget": 30,
+  "model_calls": 29,
+  "cases": [
+    {
+      "id": "receita",
+      "category": "financas",
+      "question": "Quais são os 10 filmes com maior receita em reais?",
+      "reference_sql": "SELECT m.titulo, f.receita_brl FROM dim_movies m\n        JOIN fact_movies_performance f USING(sk_movie_id) WHERE f.receita_brl IS NOT NULL\n        ORDER BY f.receita_brl DESC, m.titulo, m.sk_movie_id LIMIT 10",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "titulo",
+          "receita_brl"
+        ],
+        "rows": [
+          [
+            "Avatar: The Way Of Water",
+            12390136500.54
+          ],
+          [
+            "Avengers: Endgame",
+            11094720000
+          ],
+          [
+            "Spider-man: No Way Home",
+            10977782882.74
+          ],
+          [
+            "Avengers: Infinity War",
+            7190430847.63
+          ],
+          [
+            "Top Gun: Maverick",
+            7160804869.01
+          ],
+          [
+            "Barbie",
+            6856159007.38
+          ],
+          [
+            "The Super Mario Bros. Movie",
+            6838413799.1
+          ],
+          [
+            "The Lion King",
+            6227552146.58
+          ],
+          [
+            "Frozen Ii",
+            6094028191.32
+          ],
+          [
+            "Jurassic World: Fallen Kingdom",
+            4934822930.85
+          ]
+        ],
+        "row_count": 10,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.02,
+      "agent": {
+        "ok": true,
+        "answer": "Os 10 filmes com maior receita em reais (BRL) no catálogo:\n\n| Título | Receita (BRL) |\n|--------|---------------|\n| Avatar: The Way Of Water | 12.390.136.500,54 |\n| Avengers: Endgame | 11.094.720.000,00 |\n| Spider-man: No Way Home | 10.977.782.882,74 |\n| Avengers: Infinity War | 7.190.430.847,63 |\n| Top Gun: Maverick | 7.160.804.869,01 |\n| Barbie | 6.856.159.007,38 |\n| The Super Mario Bros. Movie | 6.838.413.799,10 |\n| The Lion King | 6.227.552.146,58 |\n| Frozen II | 6.094.028.191,32 |\n| Jurassic World: Fallen Kingdom | 4.934.822.930,85 |\n\n**Critério:** ordenação decrescente por `receita_brl` da tabela `fact_movies_performance`, unida a `dim_movies` pela chave `sk_movie_id`.  \n**Amostra:** 10 linhas (limite solicitado). Valores nulos, se existissem, ficariam por último na ordenação.",
+        "queries": [
+          {
+            "id": "call_f7179dfa0d95450a9d068676",
+            "sql": "SELECT m.titulo, p.receita_brl\nFROM dim_movies m\nJOIN fact_movies_performance p ON m.sk_movie_id = p.sk_movie_id\nORDER BY p.receita_brl DESC\nLIMIT 10;",
+            "result": {
+              "ok": true,
+              "columns": [
+                "titulo",
+                "receita_brl"
+              ],
+              "rows": [
+                [
+                  "Avatar: The Way Of Water",
+                  12390136500.54
+                ],
+                [
+                  "Avengers: Endgame",
+                  11094720000
+                ],
+                [
+                  "Spider-man: No Way Home",
+                  10977782882.74
+                ],
+                [
+                  "Avengers: Infinity War",
+                  7190430847.63
+                ],
+                [
+                  "Top Gun: Maverick",
+                  7160804869.01
+                ],
+                [
+                  "Barbie",
+                  6856159007.38
+                ],
+                [
+                  "The Super Mario Bros. Movie",
+                  6838413799.1
+                ],
+                [
+                  "The Lion King",
+                  6227552146.58
+                ],
+                [
+                  "Frozen Ii",
+                  6094028191.32
+                ],
+                [
+                  "Jurassic World: Fallen Kingdom",
+                  4934822930.85
+                ]
+              ],
+              "row_count": 10,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 2,
+        "model": "openrouter/free",
+        "actual_models": [
+          "apodex/apodex-1.1-mini:free",
+          "nvidia/nemotron-3-ultra-550b-a55b:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 14.549,
+      "status": "passed",
+      "reason": "Linhas e valores coincidem com a referência.",
+      "matched_query_id": "call_f7179dfa0d95450a9d068676"
+    },
+    {
+      "id": "lucro_genero",
+      "category": "financas",
+      "question": "Qual o lucro médio em reais por gênero, considerando apenas receita informada? Mostre a quantidade de filmes e quantos não têm orçamento. Ordene pelo gênero.",
+      "reference_sql": "SELECT g.nome_genero, AVG(f.lucro_brl) AS lucro_medio_brl,\n        COUNT(*) AS filmes, SUM(f.orcamento_brl IS NULL) AS sem_orcamento\n        FROM dim_genres g JOIN bridge_movie_genre b USING(sk_genre_id)\n        JOIN fact_movies_performance f USING(sk_movie_id) WHERE f.receita_brl IS NOT NULL\n        GROUP BY g.sk_genre_id ORDER BY g.nome_genero, g.sk_genre_id",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "nome_genero",
+          "lucro_medio_brl",
+          "filmes",
+          "sem_orcamento"
+        ],
+        "rows": [
+          [
+            "Action",
+            343223021.8728956,
+            594,
+            215
+          ],
+          [
+            "Adventure",
+            514678791.3929771,
+            393,
+            147
+          ],
+          [
+            "Animation",
+            303517897.374728,
+            239,
+            142
+          ],
+          [
+            "Comedy",
+            143589472.55178353,
+            813,
+            410
+          ],
+          [
+            "Crime",
+            93988989.26714286,
+            294,
+            128
+          ],
+          [
+            "Documentary",
+            5028959.4421568625,
+            153,
+            113
+          ],
+          [
+            "Drama",
+            84161852.72059368,
+            1297,
+            695
+          ],
+          [
+            "Family",
+            324648758.3319318,
+            264,
+            122
+          ],
+          [
+            "Fantasy",
+            335448446.35188234,
+            255,
+            121
+          ],
+          [
+            "History",
+            146826836.6097661,
+            171,
+            75
+          ],
+          [
+            "Horror",
+            92805277.19780679,
+            383,
+            215
+          ],
+          [
+            "Music",
+            111985444.2848,
+            100,
+            55
+          ],
+          [
+            "Mystery",
+            119462433.48792683,
+            246,
+            119
+          ],
+          [
+            "Romance",
+            98645875.98897436,
+            312,
+            160
+          ],
+          [
+            "Science Fiction",
+            520783718.3286344,
+            227,
+            93
+          ],
+          [
+            "Thriller",
+            92872345.46579455,
+            623,
+            302
+          ],
+          [
+            "Tv Movie",
+            9228474.485,
+            10,
+            7
+          ],
+          [
+            "War",
+            194016703.28296703,
+            91,
+            34
+          ],
+          [
+            "Western",
+            -3581373.251999998,
+            20,
+            9
+          ]
+        ],
+        "row_count": 19,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.238,
+      "agent": {
+        "ok": false,
+        "error": {
+          "code": "no_query_result",
+          "message": "O modelo não obteve uma consulta válida no banco."
+        },
+        "queries": [],
+        "model_calls": 1
+      },
+      "agent_seconds": 35.72,
+      "status": "agent_error",
+      "reason": "no_query_result"
+    },
+    {
+      "id": "margem",
+      "category": "financas",
+      "question": "Quais os 10 filmes com maior margem de lucro percentual, com finanças informadas?",
+      "reference_sql": "SELECT m.titulo, 100.0*(f.receita_brl-f.orcamento_brl)/f.receita_brl AS margem_percentual\n        FROM dim_movies m JOIN fact_movies_performance f USING(sk_movie_id)\n        WHERE f.receita_brl>0 AND f.orcamento_brl IS NOT NULL\n        ORDER BY margem_percentual DESC, m.titulo, m.sk_movie_id LIMIT 10",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "titulo",
+          "margem_percentual"
+        ],
+        "rows": [
+          [
+            "Dad, I'm Sorry",
+            99.99925278920651
+          ],
+          [
+            "Etlb",
+            99.995
+          ],
+          [
+            "Jailbait",
+            99.99289940155535
+          ],
+          [
+            "Trivikrama",
+            99.96000229322733
+          ],
+          [
+            "The Good Neighbor",
+            99.88936842972315
+          ],
+          [
+            "New York Masalı",
+            99.79982964224872
+          ],
+          [
+            "Secret Superstar",
+            99.79166725568182
+          ],
+          [
+            "Alive",
+            99.74993511290354
+          ],
+          [
+            "Bad Ben",
+            99.72727272727273
+          ],
+          [
+            "Bad Ben: The Mandela Effect",
+            99.72727272727273
+          ]
+        ],
+        "row_count": 10,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.033,
+      "agent": {
+        "ok": true,
+        "answer": "**Top 10 filmes com maior margem de lucro percentual** (finanças informadas: receita e orçamento em BRL, receita > 0)\n\nCritério: margem = 100,0 × (receita − orçamento) / receita. Valores arredondados para exibição; ordenação feita pelo valor exato.\n\n| titulo | margem_percentual |\n|---|---|\n| Dad, I'm Sorry | 100,00 |\n| Etlb | 100,00 |\n| Jailbait | 99,99 |\n| Trivikrama | 99,96 |\n| The Good Neighbor | 99,89 |\n| New York Masalı | 99,80 |\n| Secret Superstar | 99,79 |\n| Alive | 99,75 |\n| Bad Ben | 99,73 |\n| Bad Ben: The Mandela Effect | 99,73 |\n\nAmostra: 10 filmes retornados (limite solicitado). Os dois primeiros atingiram margem de 100% (orçamento praticamente nulo em relação à receita).",
+        "queries": [
+          {
+            "id": "f20c81f9-ba71-9bee-8460-bf6e06c6e98b_0",
+            "sql": "WITH base AS (\n  SELECT\n    m.titulo,\n    100.0 * (f.receita_brl - f.orcamento_brl) / f.receita_brl AS margem\n  FROM fact_movies_performance f\n  JOIN dim_movies m ON m.sk_movie_id = f.sk_movie_id\n  WHERE f.receita_brl IS NOT NULL\n    AND f.orcamento_brl IS NOT NULL\n    AND f.receita_brl > 0\n)\nSELECT\n  titulo,\n  ROUND(margem, 2) AS margem_percentual\nFROM base\nORDER BY margem DESC, titulo ASC\nLIMIT 10;",
+            "result": {
+              "ok": true,
+              "columns": [
+                "titulo",
+                "margem_percentual"
+              ],
+              "rows": [
+                [
+                  "Dad, I'm Sorry",
+                  100.0
+                ],
+                [
+                  "Etlb",
+                  100.0
+                ],
+                [
+                  "Jailbait",
+                  99.99
+                ],
+                [
+                  "Trivikrama",
+                  99.96
+                ],
+                [
+                  "The Good Neighbor",
+                  99.89
+                ],
+                [
+                  "New York Masalı",
+                  99.8
+                ],
+                [
+                  "Secret Superstar",
+                  99.79
+                ],
+                [
+                  "Alive",
+                  99.75
+                ],
+                [
+                  "Bad Ben",
+                  99.73
+                ],
+                [
+                  "Bad Ben: The Mandela Effect",
+                  99.73
+                ]
+              ],
+              "row_count": 10,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 2,
+        "model": "openrouter/free",
+        "actual_models": [
+          "poolside/laguna-s-2.1:free",
+          "qwen/qwen3.8-27b:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 19.641,
+      "status": "passed",
+      "reason": "Linhas e valores coincidem com a referência.",
+      "matched_query_id": "f20c81f9-ba71-9bee-8460-bf6e06c6e98b_0"
+    },
+    {
+      "id": "popularidade",
+      "category": "popularidade",
+      "question": "Quais são os cinco filmes mais populares?",
+      "reference_sql": "SELECT m.titulo, f.popularidade FROM dim_movies m\n        JOIN fact_movies_performance f USING(sk_movie_id) WHERE f.popularidade IS NOT NULL\n        ORDER BY f.popularidade DESC, m.titulo, m.sk_movie_id LIMIT 5",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "titulo",
+          "popularidade"
+        ],
+        "rows": [
+          [
+            "Blue Beetle",
+            2994.357
+          ],
+          [
+            "Gran Turismo",
+            2680.593
+          ],
+          [
+            "La Fellinette",
+            2020.0
+          ],
+          [
+            "The Fear Footage 2: Curse Of The Tape",
+            2019.0
+          ],
+          [
+            "Wwe Survivor Series 2018",
+            2018.0
+          ]
+        ],
+        "row_count": 5,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.262,
+      "agent": {
+        "ok": true,
+        "answer": "Os cinco filmes mais populares, de acordo com a pontuação de popularidade armazenada no fato de desempenho:\n\n| titulo | popularidade |\n|---|---|\n| Blue Beetle | 2994.357 |\n| Gran Turismo | 2680.593 |\n| La Fellinette | 2020.0 |\n| The Fear Footage 2: Curse Of The Tape | 2019.0 |\n| Wwe Survivor Series 2018 | 2018.0 |\n\nCritério: ordenação decrescente pela coluna `popularidade` (valores não nulos) da tabela `fact_movies_performance`, com `LIMIT 5`. Fonte: catálogo local (snapshot).",
+        "queries": [
+          {
+            "id": "call-58533c79-37c9-4d0f-9ac9-288a7ebd54c9",
+            "sql": "SELECT dm.titulo, fmp.popularidade\nFROM fact_movies_performance fmp\nJOIN dim_movies dm ON fmp.sk_movie_id = dm.sk_movie_id\nWHERE fmp.popularidade IS NOT NULL\nORDER BY fmp.popularidade DESC\nLIMIT 5",
+            "result": {
+              "ok": true,
+              "columns": [
+                "titulo",
+                "popularidade"
+              ],
+              "rows": [
+                [
+                  "Blue Beetle",
+                  2994.357
+                ],
+                [
+                  "Gran Turismo",
+                  2680.593
+                ],
+                [
+                  "La Fellinette",
+                  2020.0
+                ],
+                [
+                  "The Fear Footage 2: Curse Of The Tape",
+                  2019.0
+                ],
+                [
+                  "Wwe Survivor Series 2018",
+                  2018.0
+                ]
+              ],
+              "row_count": 5,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 2,
+        "model": "openrouter/free",
+        "actual_models": [
+          "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "poolside/laguna-s-2.1:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 7.384,
+      "status": "passed",
+      "reason": "Linhas e valores coincidem com a referência.",
+      "matched_query_id": "call-58533c79-37c9-4d0f-9ac9-288a7ebd54c9"
+    },
+    {
+      "id": "divergencia_notas",
+      "category": "popularidade",
+      "question": "Quais os 10 filmes com maior divergência entre TMDB e IMDb? Mostre as notas e a diferença.",
+      "reference_sql": "SELECT m.titulo, f.nota_tmdb, f.nota_imdb,\n        ABS(f.nota_tmdb-f.nota_imdb) AS divergencia FROM dim_movies m\n        JOIN fact_movies_performance f USING(sk_movie_id)\n        WHERE f.nota_tmdb BETWEEN 0 AND 10 AND f.qtd_tmdb>0\n        AND f.nota_imdb BETWEEN 0 AND 10 AND f.qtd_imdb>0\n        ORDER BY divergencia DESC, m.titulo, m.sk_movie_id LIMIT 10",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "titulo",
+          "nota_tmdb",
+          "nota_imdb",
+          "divergencia"
+        ],
+        "rows": [
+          [
+            "Alfredo",
+            1.0,
+            10.0,
+            9.0
+          ],
+          [
+            "Hit Me",
+            0.0,
+            9.0,
+            9.0
+          ],
+          [
+            "The 9th Annual On Cinema Oscar Special",
+            0.0,
+            9.0,
+            9.0
+          ],
+          [
+            "Sweethearts Of The Gridiron",
+            0.0,
+            8.6,
+            8.6
+          ],
+          [
+            "Madre Luna",
+            0.0,
+            8.5,
+            8.5
+          ],
+          [
+            "The Farmer",
+            0.5,
+            9.0,
+            8.5
+          ],
+          [
+            "Afraid Of The Night",
+            1.0,
+            9.3,
+            8.3
+          ],
+          [
+            "Dick Van Dyke: 98 Years Of Magic",
+            0.0,
+            8.3,
+            8.3
+          ],
+          [
+            "Fan Club",
+            1.0,
+            9.3,
+            8.3
+          ],
+          [
+            "Rosario",
+            0.0,
+            8.3,
+            8.3
+          ]
+        ],
+        "row_count": 10,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.265,
+      "agent": {
+        "ok": true,
+        "answer": "**Top 10 filmes com maior divergência entre as notas TMDB e IMDb**\n\n| titulo | nota_tmdb | nota_imdb | divergencia |\n|--------|-----------|-----------|-------------|\n| A Dire Strait | 0.0 | 10.0 | 10.0 |\n| Ayesha | 0.0 | 10.0 | 10.0 |\n| Bihari Lives Matter | 0.0 | 10.0 | 10.0 |\n| Circular | 0.0 | 10.0 | 10.0 |\n| Ember | 0.0 | 10.0 | 10.0 |\n| I Miss Her Too | 0.0 | 10.0 | 10.0 |\n| In The Fields | 0.0 | 10.0 | 10.0 |\n| Makhlooq | 0.0 | 10.0 | 10.0 |\n| Musica Pop | 0.0 | 10.0 | 10.0 |\n| One Last Ride: The U.s. - Canada Horse Meat Pipeline | 0.0 | 10.0 | 10.0 |\n\n**Critério utilizado**  \n- Divergência = |nota_TMDB − nota_IMDB| (valor absoluto).  \n- Considerados apenas filmes com ambas as notas não nulas.  \n- Ordenação por divergência decrescente; em caso de empate, por título alfabético.  \n- Limite de 10 linhas, conforme solicitado.  \n\nTodos os filmes listados apresentam a maior divergência possível na escala 0‑10 (10,0 pontos), pois possuem nota TMDB igual a 0,0 e nota IMDb igual a 10,0. Caso existam outros filmes com a mesma divergência, eles não foram incluídos porque o limite foi atingido após os primeiros 10 em ordem alfabética.",
+        "queries": [
+          {
+            "id": "call-6d2965e2-d2e1-41a3-9074-28bac1fe7de8",
+            "sql": "WITH filtered AS (\n SELECT m.titulo,\n        f.nota_tmdb,\n        f.nota_imdb,\n        ABS(f.nota_tmdb - f.nota_imdb) AS divergencia\n FROM dim_movies m\n JOIN fact_movies_performance f ON m.sk_movie_id = f.sk_movie_id\n WHERE f.nota_tmdb IS NOT NULL AND f.nota_imdb IS NOT NULL\n)\nSELECT titulo, nota_tmdb, nota_imdb, divergencia\nFROM filtered\nORDER BY divergencia DESC, titulo\nLIMIT 10",
+            "result": {
+              "ok": true,
+              "columns": [
+                "titulo",
+                "nota_tmdb",
+                "nota_imdb",
+                "divergencia"
+              ],
+              "rows": [
+                [
+                  "A Dire Strait",
+                  0.0,
+                  10.0,
+                  10.0
+                ],
+                [
+                  "Ayesha",
+                  0.0,
+                  10.0,
+                  10.0
+                ],
+                [
+                  "Bihari Lives Matter",
+                  0.0,
+                  10.0,
+                  10.0
+                ],
+                [
+                  "Circular",
+                  0.0,
+                  10.0,
+                  10.0
+                ],
+                [
+                  "Ember",
+                  0.0,
+                  10.0,
+                  10.0
+                ],
+                [
+                  "I Miss Her Too",
+                  0.0,
+                  10.0,
+                  10.0
+                ],
+                [
+                  "In The Fields",
+                  0.0,
+                  10.0,
+                  10.0
+                ],
+                [
+                  "Makhlooq",
+                  0.0,
+                  10.0,
+                  10.0
+                ],
+                [
+                  "Musica Pop",
+                  0.0,
+                  10.0,
+                  10.0
+                ],
+                [
+                  "One Last Ride: The U.s. - Canada Horse Meat Pipeline",
+                  0.0,
+                  10.0,
+                  10.0
+                ]
+              ],
+              "row_count": 10,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 2,
+        "model": "openrouter/free",
+        "actual_models": [
+          "nvidia/nemotron-3-super-120b-a12b:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 8.236,
+      "status": "mismatch",
+      "reason": "Valor ou ordem divergente na linha 1, coluna 1.",
+      "matched_query_id": null
+    },
+    {
+      "id": "imdb_ano",
+      "category": "popularidade",
+      "question": "Qual a nota média IMDb por ano? Mostre a quantidade de filmes avaliados e ordene pelo ano.",
+      "reference_sql": "SELECT m.ano_lancamento, AVG(f.nota_imdb) AS nota_media, COUNT(*) AS filmes\n        FROM dim_movies m JOIN fact_movies_performance f USING(sk_movie_id)\n        WHERE f.nota_imdb BETWEEN 0 AND 10 AND f.qtd_imdb>0\n        GROUP BY m.ano_lancamento ORDER BY m.ano_lancamento",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "ano_lancamento",
+          "nota_media",
+          "filmes"
+        ],
+        "rows": [
+          [
+            2016,
+            6.333078052874528,
+            9532
+          ],
+          [
+            2017,
+            6.345181367305261,
+            10283
+          ],
+          [
+            2018,
+            6.275783339701948,
+            10468
+          ],
+          [
+            2019,
+            6.254391198955809,
+            10726
+          ],
+          [
+            2020,
+            6.253662711090826,
+            8764
+          ],
+          [
+            2021,
+            6.243009653605905,
+            8805
+          ],
+          [
+            2022,
+            6.2314470227670755,
+            9136
+          ],
+          [
+            2023,
+            6.229273711984447,
+            7201
+          ],
+          [
+            2024,
+            6.142021276595745,
+            1504
+          ],
+          [
+            2025,
+            6.15,
+            2
+          ],
+          [
+            2026,
+            7.5,
+            1
+          ],
+          [
+            2027,
+            6.4,
+            2
+          ],
+          [
+            2029,
+            3.8,
+            1
+          ]
+        ],
+        "row_count": 13,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.337,
+      "agent": {
+        "ok": true,
+        "answer": "**Média de nota IMDb por ano (filmes com avaliação válida)**  \n\n| ano_lancamento | nota_media | filmes |\n|----------------|-----------|--------|\n| 2016 | 6.33 | 9 532 |\n| 2017 | 6.35 | 10 283 |\n| 2018 | 6.28 | 10 468 |\n| 2019 | 6.25 | 10 726 |\n| 2020 | 6.25 | 8 764 |\n| 2021 | 6.24 | 8 805 |\n| 2022 | 6.23 | 9 136 |\n| 2023 | 6.23 | 7 201 |\n| 2024 | 6.14 | 1 504 |\n| 2025 | 6.15 | 2 |\n| 2026 | 7.50 | 1 |\n| 2027 | 6.40 | 2 |\n| 2029 | 3.80 | 1 |\n\n**Detalhes da consulta**\n\n- **Fonte**: `dim_movies` ↔ `fact_movies_performance` (chave `sk_movie_id`).  \n- **Filtro de qualidade da nota**: `nota_imdb IS NOT NULL`, `nota_imdb BETWEEN 0 AND 10` e `qtd_imdb > 0`.  \n- **Cálculo**: `AVG(nota_imdb)` arredondado a 2 casas decimais; `COUNT(*)` de filmes por ano.  \n- **Ordenação**: crescente por `ano_lancamento`.  \n\nO conjunto cobre o período observado 2016‑2029 (dados disponíveis no snapshot). Anos com poucos títulos (2025‑2029) refletem a amostra limitada nesses anos.",
+        "queries": [
+          {
+            "id": "call-e8c01b27-e335-4ecc-9c8c-312fe5143f90",
+            "sql": "WITH valid_ratings AS (\n    SELECT\n        m.ano_lancamento,\n        f.nota_imdb\n    FROM dim_movies m\n    JOIN fact_movies_performance f ON m.sk_movie_id = f.sk_movie_id\n    WHERE f.nota_imdb IS NOT NULL\n      AND f.nota_imdb BETWEEN 0 AND 10\n      AND f.qtd_imdb > 0\n)\nSELECT\n    ano_lancamento,\n    ROUND(AVG(nota_imdb), 2) AS nota_media,\n    COUNT(*) AS filmes\nFROM valid_ratings\nGROUP BY ano_lancamento\nORDER BY ano_lancamento;",
+            "result": {
+              "ok": true,
+              "columns": [
+                "ano_lancamento",
+                "nota_media",
+                "filmes"
+              ],
+              "rows": [
+                [
+                  2016,
+                  6.33,
+                  9532
+                ],
+                [
+                  2017,
+                  6.35,
+                  10283
+                ],
+                [
+                  2018,
+                  6.28,
+                  10468
+                ],
+                [
+                  2019,
+                  6.25,
+                  10726
+                ],
+                [
+                  2020,
+                  6.25,
+                  8764
+                ],
+                [
+                  2021,
+                  6.24,
+                  8805
+                ],
+                [
+                  2022,
+                  6.23,
+                  9136
+                ],
+                [
+                  2023,
+                  6.23,
+                  7201
+                ],
+                [
+                  2024,
+                  6.14,
+                  1504
+                ],
+                [
+                  2025,
+                  6.15,
+                  2
+                ],
+                [
+                  2026,
+                  7.5,
+                  1
+                ],
+                [
+                  2027,
+                  6.4,
+                  2
+                ],
+                [
+                  2029,
+                  3.8,
+                  1
+                ]
+              ],
+              "row_count": 13,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 2,
+        "model": "openrouter/free",
+        "actual_models": [
+          "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "nvidia/nemotron-3.5-lightning:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 14.197,
+      "status": "passed",
+      "reason": "Linhas e valores coincidem com a referência.",
+      "matched_query_id": "call-e8c01b27-e335-4ecc-9c8c-312fe5143f90"
+    },
+    {
+      "id": "ator",
+      "category": "elenco",
+      "question": "Qual ator tem mais participações em filmes lançados nos últimos cinco anos? Mostre a quantidade e todos os empatados, ordenando pelo nome.",
+      "reference_sql": "WITH counts AS (SELECT p.sk_person_id, p.nome_pessoa,\n        COUNT(DISTINCT b.sk_movie_id) AS filmes FROM dim_people p\n        JOIN bridge_movie_person b USING(sk_person_id) JOIN dim_movies m USING(sk_movie_id)\n        WHERE p.tipo_pessoa='Ator' AND m.status_filme='Lançado'\n        AND m.data_lancamento BETWEEN '2021-10-04' AND '2026-10-04'\n        GROUP BY p.sk_person_id)\n        SELECT nome_pessoa, filmes FROM counts WHERE filmes=(SELECT MAX(filmes) FROM counts)\n        ORDER BY nome_pessoa, sk_person_id",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "nome_pessoa",
+          "filmes"
+        ],
+        "rows": [
+          [
+            "Eric Roberts",
+            65
+          ]
+        ],
+        "row_count": 1,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 5.86,
+      "agent": {
+        "ok": true,
+        "answer": "Ator com mais participações em filmes lançados nos últimos cinco anos (2021-10-04 a 2026-10-04, status \"Lançado\"):\n\n- **Eric Roberts** — 65 filmes\n\nNão houve empate: Eric Roberts lidera com 65 participações distintas.",
+        "queries": [
+          {
+            "id": "call-e1c290f0-7a29-442e-ab2d-c58b2399c5f6",
+            "sql": "WITH actor_movie_counts AS (\n SELECT p.nome_pessoa, COUNT(DISTINCT m.sk_movie_id) AS filme_count\n FROM dim_people p\n JOIN bridge_movie_person bp ON p.sk_person_id = bp.sk_person_id\n JOIN fact_movies_performance fp ON bp.sk_movie_id = fp.sk_movie_id\n JOIN dim_movies m ON fp.sk_movie_id = m.sk_movie_id\n WHERE p.tipo_pessoa = 'Ator'\n   AND m.status_filme = 'Lançado'\n   AND m.data_lancamento BETWEEN '2021-10-04' AND '2026-10-04'\n GROUP BY p.sk_person_id, p.nome_pessoa\n)\nSELECT nome_pessoa, filme_count AS filmes\nFROM actor_movie_counts\nWHERE filme_count = (SELECT MAX(filme_count) FROM actor_movie_counts)\nORDER BY nome_pessoa;",
+            "result": {
+              "ok": true,
+              "columns": [
+                "nome_pessoa",
+                "filmes"
+              ],
+              "rows": [
+                [
+                  "Eric Roberts",
+                  65
+                ]
+              ],
+              "row_count": 1,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 2,
+        "model": "openrouter/free",
+        "actual_models": [
+          "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+          "poolside/laguna-s-2.1:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 21.81,
+      "status": "passed",
+      "reason": "Linhas e valores coincidem com a referência.",
+      "matched_query_id": "call-e1c290f0-7a29-442e-ab2d-c58b2399c5f6"
+    },
+    {
+      "id": "diretores",
+      "category": "elenco",
+      "question": "Quais os 10 diretores com maior nota média IMDb, com mínimo de cinco filmes avaliados? Mostre média e quantidade de filmes.",
+      "reference_sql": "SELECT p.nome_pessoa, AVG(f.nota_imdb) AS nota_media,\n        COUNT(DISTINCT b.sk_movie_id) AS filmes FROM dim_people p\n        JOIN bridge_movie_person b USING(sk_person_id)\n        JOIN fact_movies_performance f USING(sk_movie_id)\n        WHERE p.tipo_pessoa='Diretor' AND f.nota_imdb BETWEEN 0 AND 10 AND f.qtd_imdb>0\n        GROUP BY p.sk_person_id HAVING COUNT(DISTINCT b.sk_movie_id)>=5\n        ORDER BY nota_media DESC, p.nome_pessoa, p.sk_person_id LIMIT 10",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "nome_pessoa",
+          "nota_media",
+          "filmes"
+        ],
+        "rows": [
+          [
+            "Jun Shishido",
+            9.1875,
+            8
+          ],
+          [
+            "Yūichirō Hayashi",
+            9.1875,
+            8
+          ],
+          [
+            "Alonso O. Lara",
+            9.158333333333333,
+            12
+          ],
+          [
+            "Tokio Igarashi",
+            9.0,
+            5
+          ],
+          [
+            "Erlik",
+            8.950000000000001,
+            6
+          ],
+          [
+            "Stuart Webster",
+            8.879999999999999,
+            5
+          ],
+          [
+            "Don Thacker",
+            8.7,
+            5
+          ],
+          [
+            "John D. Boswell",
+            8.7,
+            8
+          ],
+          [
+            "Chris Zarb",
+            8.65,
+            6
+          ],
+          [
+            "Patrick Müller",
+            8.466666666666667,
+            6
+          ]
+        ],
+        "row_count": 10,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 1.647,
+      "agent": {
+        "ok": true,
+        "answer": "**Top 10 diretores por nota média IMDb (mínimo de 5 filmes avaliados)**  \n*Fonte da nota: IMDb (nota_imdb). Cálculo: média aritmética simples das notas válidas (0‑10, com qtd_imdb > 0). Arredondamento para duas casas apenas na exibição; a ordenação usa o valor exato.*  \n\n| Diretor            | Nota média | Filmes (com nota IMDb válida) |\n|--------------------|------------|-------------------------------|\n| Jun Shishido       | 9.19       | 8                             |\n| Yūichirō Hayashi   | 9.19       | 8                             |\n| Alonso O. Lara     | 9.16       | 12                            |\n| Tokio Igarashi     | 9.00       | 5                             |\n| Erlik              | 8.95       | 6                             |\n| Stuart Webster     | 8.88       | 5                             |\n| Don Thacker        | 8.70       | 5                             |\n| John D. Boswell    | 8.70       | 8                             |\n| Chris Zarb         | 8.65       | 6                             |\n| Patrick Müller     | 8.47       | 6                             |\n\n**Observações**  \n- O desempate entre notas iguais segue o nome do diretor (ordem alfabética) e, se necessário, a chave interna `sk_person_id`.  \n- Todos os diretores listados possuem pelo menos cinco filmes com nota IMDb válida no catálogo.  \n- Não há filtros implícitos de status de lançamento ou período; o universo considerado é todo o catálogo disponível.  \n- O resultado está limitado a 10 linhas, conforme o padrão de ranking solicitado.  \n\n*Não foram encontradas ausências ou inconsistências nos dados que invalidem a lista apresentada.*",
+        "queries": [
+          {
+            "id": "query_database_c0yqm6sjas2k",
+            "sql": "SELECT\n  p.nome_pessoa,\n  ROUND(AVG(f.nota_imdb), 2) AS nota_media,\n  COUNT(DISTINCT f.sk_movie_id) AS filmes\nFROM dim_people p\nJOIN bridge_movie_person bp ON p.sk_person_id = bp.sk_person_id\nJOIN fact_movies_performance f ON bp.sk_movie_id = f.sk_movie_id\nWHERE p.tipo_pessoa = 'Diretor'\n  AND f.nota_imdb IS NOT NULL\n  AND f.nota_imdb BETWEEN 0 AND 10\n  AND f.qtd_imdb > 0\nGROUP BY p.sk_person_id, p.nome_pessoa\nHAVING COUNT(DISTINCT f.sk_movie_id) >= 5\nORDER BY nota_media DESC, p.nome_pessoa, p.sk_person_id\nLIMIT 10;",
+            "result": {
+              "ok": true,
+              "columns": [
+                "nome_pessoa",
+                "nota_media",
+                "filmes"
+              ],
+              "rows": [
+                [
+                  "Jun Shishido",
+                  9.19,
+                  8
+                ],
+                [
+                  "Yūichirō Hayashi",
+                  9.19,
+                  8
+                ],
+                [
+                  "Alonso O. Lara",
+                  9.16,
+                  12
+                ],
+                [
+                  "Tokio Igarashi",
+                  9.0,
+                  5
+                ],
+                [
+                  "Erlik",
+                  8.95,
+                  6
+                ],
+                [
+                  "Stuart Webster",
+                  8.88,
+                  5
+                ],
+                [
+                  "Don Thacker",
+                  8.7,
+                  5
+                ],
+                [
+                  "John D. Boswell",
+                  8.7,
+                  8
+                ],
+                [
+                  "Chris Zarb",
+                  8.65,
+                  6
+                ],
+                [
+                  "Patrick Müller",
+                  8.47,
+                  6
+                ]
+              ],
+              "row_count": 10,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 2,
+        "model": "openrouter/free",
+        "actual_models": [
+          "cohere/north-mini-code:free",
+          "nvidia/nemotron-3-super-120b-a12b:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 43.91,
+      "status": "passed",
+      "reason": "Linhas e valores coincidem com a referência.",
+      "matched_query_id": "query_database_c0yqm6sjas2k"
+    },
+    {
+      "id": "dupla",
+      "category": "elenco",
+      "question": "Qual dupla ator–diretor mais trabalhou junta? Mostre ator, diretor e quantidade de filmes, com todos os empatados, ordenando pelo nome do ator e diretor.",
+      "reference_sql": "WITH actors AS MATERIALIZED (\n        SELECT b.sk_movie_id, p.sk_person_id, p.nome_pessoa FROM bridge_movie_person b\n        JOIN dim_people p USING(sk_person_id) WHERE p.tipo_pessoa='Ator'),\n        directors AS MATERIALIZED (\n        SELECT b.sk_movie_id, p.sk_person_id, p.nome_pessoa FROM bridge_movie_person b\n        JOIN dim_people p USING(sk_person_id) WHERE p.tipo_pessoa='Diretor'),\n        counts AS (SELECT a.sk_person_id AS ator_id, d.sk_person_id AS diretor_id,\n        a.nome_pessoa AS ator, d.nome_pessoa AS diretor, COUNT(DISTINCT a.sk_movie_id) AS filmes\n        FROM actors a JOIN directors d USING(sk_movie_id)\n        GROUP BY a.sk_person_id, d.sk_person_id)\n        SELECT ator, diretor, filmes FROM counts WHERE filmes=(SELECT MAX(filmes) FROM counts)\n        ORDER BY ator, diretor, ator_id, diretor_id",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "ator",
+          "diretor",
+          "filmes"
+        ],
+        "rows": [
+          [
+            "Joe Anoa'i",
+            "Kevin Dunn",
+            37
+          ]
+        ],
+        "row_count": 1,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 5.829,
+      "agent": {
+        "ok": false,
+        "error": {
+          "code": "agent_limit",
+          "message": "O agente atingiu o limite de chamadas sem concluir a resposta."
+        },
+        "queries": [
+          {
+            "id": "chatcmpl-tool-de1261c5824d4403afb22afc1d86bd16",
+            "sql": "WITH atores AS (\n    SELECT bp.sk_movie_id, bp.sk_person_id AS sk_ator, p.nome_pessoa AS ator\n    FROM bridge_movie_person bp\n    JOIN dim_people p ON bp.sk_person_id = p.sk_person_id\n    WHERE p.tipo_pessoa = 'Ator'\n),\ndiretores AS (\n    SELECT bp.sk_movie_id, bp.sk_person_id AS sk_diretor, p.nome_pessoa AS diretor\n    FROM bridge_movie_person bp\n    JOIN dim_people p ON bp.sk_person_id = p.sk_person_id\n    WHERE p.tipo_pessoa = 'Diretor'\n),\nduplas AS (\n    SELECT a.ator, d.diretor, COUNT(DISTINCT a.sk_movie_id) AS filmes\n    FROM atores a\n    JOIN diretores d ON a.sk_movie_id = d.sk_movie_id\n    GROUP BY a.ator, d.diretor\n),\nmax_filmes AS (\n    SELECT MAX(filmes) AS max_filmes FROM duplas\n)\nSELECT duplas.ator, duplas.diretor, duplas.filmes\nFROM duplas\nJOIN max_filmes ON duplas.filmes = max_filmes.max_filmes\nORDER BY duplas.ator, duplas.diretor;",
+            "result": {
+              "ok": false,
+              "error": {
+                "code": "query_limit",
+                "message": "Consulta excedeu o limite de tempo ou trabalho do SQLite."
+              }
+            }
+          },
+          {
+            "id": "6292d908-608e-9975-808c-927a178df699_0",
+            "sql": "WITH duplas AS (\n    SELECT\n        pa.nome_pessoa AS ator,\n        pd.nome_pessoa AS diretor,\n        COUNT(DISTINCT bp_a.sk_movie_id) AS filmes\n    FROM bridge_movie_person bp_a\n    JOIN dim_people pa ON bp_a.sk_person_id = pa.sk_person_id AND pa.tipo_pessoa = 'Ator'\n    JOIN bridge_movie_person bp_d ON bp_d.sk_movie_id = bp_a.sk_movie_id\n    JOIN dim_people pd ON bp_d.sk_person_id = pd.sk_person_id AND pd.tipo_pessoa = 'Diretor'\n    GROUP BY pa.nome_pessoa, pd.nome_pessoa\n),\nmax_filmes AS (\n    SELECT MAX(filmes) AS max_filmes FROM duplas\n)\nSELECT duplas.ator, duplas.diretor, duplas.filmes\nFROM duplas\nJOIN max_filmes ON duplas.filmes = max_filmes.max_filmes\nORDER BY duplas.ator, duplas.diretor;",
+            "result": {
+              "ok": false,
+              "error": {
+                "code": "query_limit",
+                "message": "Consulta excedeu o limite de tempo ou trabalho do SQLite."
+              }
+            }
+          },
+          {
+            "id": "chatcmpl-tool-fabf58044e974e24bf3c5b12fbfb4b57",
+            "sql": "SELECT\n    pa.nome_pessoa AS ator,\n    pd.nome_pessoa AS diretor,\n    COUNT(DISTINCT bp_a.sk_movie_id) AS filmes\nFROM bridge_movie_person bp_a\nJOIN dim_people pa ON bp_a.sk_person_id = pa.sk_person_id AND pa.tipo_pessoa = 'Ator'\nJOIN bridge_movie_person bp_d ON bp_d.sk_movie_id = bp_a.sk_movie_id\nJOIN dim_people pd ON bp_d.sk_person_id = pd.sk_person_id AND pd.tipo_pessoa = 'Diretor'\nGROUP BY pa.nome_pessoa, pd.nome_pessoa\nORDER BY filmes DESC, ator, diretor\nLIMIT 10;",
+            "result": {
+              "ok": false,
+              "error": {
+                "code": "query_limit",
+                "message": "Consulta excedeu o limite de tempo ou trabalho do SQLite."
+              }
+            }
+          }
+        ],
+        "model_calls": 3
+      },
+      "agent_seconds": 58.728,
+      "status": "agent_error",
+      "reason": "agent_limit"
+    },
+    {
+      "id": "generos",
+      "category": "generos_produtoras",
+      "question": "Qual a quantidade de filmes por gênero, incluindo gêneros sem filmes? Ordene pelo gênero.",
+      "reference_sql": "SELECT g.nome_genero, COUNT(DISTINCT b.sk_movie_id) AS filmes FROM dim_genres g\n        LEFT JOIN bridge_movie_genre b USING(sk_genre_id) GROUP BY g.sk_genre_id\n        ORDER BY g.nome_genero, g.sk_genre_id",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "nome_genero",
+          "filmes"
+        ],
+        "rows": [
+          [
+            "Action",
+            5028
+          ],
+          [
+            "Adventure",
+            2376
+          ],
+          [
+            "Animation",
+            3911
+          ],
+          [
+            "Comedy",
+            16048
+          ],
+          [
+            "Crime",
+            3902
+          ],
+          [
+            "Documentary",
+            18082
+          ],
+          [
+            "Drama",
+            28086
+          ],
+          [
+            "Family",
+            3140
+          ],
+          [
+            "Fantasy",
+            2722
+          ],
+          [
+            "History",
+            1993
+          ],
+          [
+            "Horror",
+            8674
+          ],
+          [
+            "Music",
+            2384
+          ],
+          [
+            "Mystery",
+            2713
+          ],
+          [
+            "Romance",
+            6209
+          ],
+          [
+            "Science Fiction",
+            3218
+          ],
+          [
+            "Thriller",
+            8540
+          ],
+          [
+            "Tv Movie",
+            3336
+          ],
+          [
+            "War",
+            804
+          ],
+          [
+            "Western",
+            355
+          ]
+        ],
+        "row_count": 19,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.955,
+      "agent": {
+        "ok": true,
+        "answer": "**Filmes por gênero (incluindo gêneros sem filmes)**  \n\n| nome_genero | filmes |\n|-------------|--------|\n| Action      | 5028 |\n| Adventure   | 2376 |\n| Animation   | 3911 |\n| Comedy      | 16048 |\n| Crime       | 3902 |\n| Documentary | 18082 |\n| Drama       | 28086 |\n| Family      | 3140 |\n| Fantasy     | 2722 |\n| History     | 1993 |\n| Horror      | 8674 |\n| Music       | 2384 |\n| Mystery     | 2713 |\n| Romance     | 6209 |\n| Science Fiction | 3218 |\n| Thriller    | 8540 |\n| Tv Movie    | 3336 |\n| War         | 804 |\n| Western     | 355 |\n\nA consulta foi feita contra `dim_genres` com um *LEFT JOIN* a `bridge_movie_genre`, garantindo que todos os gêneros presentes no banco apareçam, mesmo aqueles sem filmes associados (contagem = 0). Os resultados estão ordenados alfabeticamente pelo nome do gênero (`nome_genero`).",
+        "queries": [
+          {
+            "id": "call-21f44f2d-f145-469b-b65d-8e5fa7fcacb4",
+            "sql": "SELECT g.nome_genero AS nome_genero,\n       COUNT(DISTINCT bm.sk_movie_id) AS filmes\nFROM dim_genres g\nLEFT JOIN bridge_movie_genre bm ON g.sk_genre_id = bm.sk_genre_id\nGROUP BY g.nome_genero\nORDER BY g.nome_genero;",
+            "result": {
+              "ok": true,
+              "columns": [
+                "nome_genero",
+                "filmes"
+              ],
+              "rows": [
+                [
+                  "Action",
+                  5028
+                ],
+                [
+                  "Adventure",
+                  2376
+                ],
+                [
+                  "Animation",
+                  3911
+                ],
+                [
+                  "Comedy",
+                  16048
+                ],
+                [
+                  "Crime",
+                  3902
+                ],
+                [
+                  "Documentary",
+                  18082
+                ],
+                [
+                  "Drama",
+                  28086
+                ],
+                [
+                  "Family",
+                  3140
+                ],
+                [
+                  "Fantasy",
+                  2722
+                ],
+                [
+                  "History",
+                  1993
+                ],
+                [
+                  "Horror",
+                  8674
+                ],
+                [
+                  "Music",
+                  2384
+                ],
+                [
+                  "Mystery",
+                  2713
+                ],
+                [
+                  "Romance",
+                  6209
+                ],
+                [
+                  "Science Fiction",
+                  3218
+                ],
+                [
+                  "Thriller",
+                  8540
+                ],
+                [
+                  "Tv Movie",
+                  3336
+                ],
+                [
+                  "War",
+                  804
+                ],
+                [
+                  "Western",
+                  355
+                ]
+              ],
+              "row_count": 19,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 2,
+        "model": "openrouter/free",
+        "actual_models": [
+          "liquid/lfm-2.5-2.6b:free",
+          "nvidia/nemotron-3-super-120b-a12b:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 8.769,
+      "status": "passed",
+      "reason": "Linhas e valores coincidem com a referência.",
+      "matched_query_id": "call-21f44f2d-f145-469b-b65d-8e5fa7fcacb4"
+    },
+    {
+      "id": "produtora",
+      "category": "generos_produtoras",
+      "question": "Qual produtora tem maior lucro total em reais dos filmes associados, com receita e orçamento informados? Mostre o lucro e todos os empatados, ordenando pelo nome.",
+      "reference_sql": "WITH profits AS (SELECT c.sk_company_id, c.nome_produtora,\n        SUM(f.receita_brl-f.orcamento_brl) AS lucro_total_brl FROM dim_companies c\n        JOIN bridge_movie_company b USING(sk_company_id)\n        JOIN fact_movies_performance f USING(sk_movie_id)\n        WHERE f.receita_brl IS NOT NULL AND f.orcamento_brl IS NOT NULL GROUP BY c.sk_company_id)\n        SELECT nome_produtora, lucro_total_brl FROM profits\n        WHERE lucro_total_brl=(SELECT MAX(lucro_total_brl) FROM profits)\n        ORDER BY nome_produtora, sk_company_id",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "nome_produtora",
+          "lucro_total_brl"
+        ],
+        "rows": [
+          [
+            "Marvel Studios",
+            61553661048.84
+          ]
+        ],
+        "row_count": 1,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 1.87,
+      "agent": {
+        "ok": true,
+        "answer": "**Produtora com maior lucro total em reais (filmes com receita e orçamento informados):**\n\n| nome_produtora | lucro_total_brl |\n|----------------|-----------------|\n| Marvel Studios | 61.553.661.048,84 |\n\n**Critério:** soma do lucro (receita_brl − orçamento_brl) de todos os filmes associados à produtora, considerando apenas filmes com **receita e orçamento em BRL informados** (não nulos).\n\n**Resultado:** apenas **Marvel Studios** atingiu o lucro máximo, portanto não há empatados. Como solicitado, todos os empatados no topo foram retornados — neste caso, apenas uma produtora.",
+        "queries": [
+          {
+            "id": "call-732f7073-0938-4cf3-aa85-3ac3908fb4ee",
+            "sql": "WITH movie_profits AS (\n    SELECT\n        fmp.sk_movie_id,\n        (fmp.receita_brl - fmp.orcamento_brl) AS lucro_filme_brl\n    FROM fact_movies_performance fmp\n    WHERE fmp.receita_brl IS NOT NULL\n      AND fmp.orcamento_brl IS NOT NULL\n),\ncompany_profits AS (\n    SELECT\n        dc.nome_produtora,\n        SUM(mp.lucro_filme_brl) AS lucro_total_brl\n    FROM movie_profits mp\n    JOIN bridge_movie_company bmc ON mp.sk_movie_id = bmc.sk_movie_id\n    JOIN dim_companies dc ON bmc.sk_company_id = dc.sk_company_id\n    GROUP BY dc.nome_produtora\n),\nmax_profit AS (\n    SELECT MAX(lucro_total_brl) AS max_lucro FROM company_profits\n)\nSELECT\n    cp.nome_produtora,\n    cp.lucro_total_brl\nFROM company_profits cp\nJOIN max_profit mp ON cp.lucro_total_brl = mp.max_lucro\nORDER BY cp.nome_produtora;",
+            "result": {
+              "ok": true,
+              "columns": [
+                "nome_produtora",
+                "lucro_total_brl"
+              ],
+              "rows": [
+                [
+                  "Marvel Studios",
+                  61553661048.84
+                ]
+              ],
+              "row_count": 1,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 2,
+        "model": "openrouter/free",
+        "actual_models": [
+          "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "poolside/laguna-s-2.1:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 15.268,
+      "status": "passed",
+      "reason": "Linhas e valores coincidem com a referência.",
+      "matched_query_id": "call-732f7073-0938-4cf3-aa85-3ac3908fb4ee"
+    },
+    {
+      "id": "margem_genero",
+      "category": "generos_produtoras",
+      "question": "Qual gênero tem maior margem de lucro percentual média, com dados completos? Mostre margem média, quantidade de filmes e todos os empatados, ordenando pelo gênero.",
+      "reference_sql": "WITH margins AS (SELECT g.sk_genre_id, g.nome_genero,\n        AVG(100.0*(f.receita_brl-f.orcamento_brl)/f.receita_brl) AS margem_media,\n        COUNT(*) AS filmes FROM dim_genres g JOIN bridge_movie_genre b USING(sk_genre_id)\n        JOIN fact_movies_performance f USING(sk_movie_id)\n        WHERE f.receita_brl>0 AND f.orcamento_brl IS NOT NULL GROUP BY g.sk_genre_id)\n        SELECT nome_genero, margem_media, filmes FROM margins\n        WHERE margem_media=(SELECT MAX(margem_media) FROM margins)\n        ORDER BY nome_genero, sk_genre_id",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "nome_genero",
+          "margem_media",
+          "filmes"
+        ],
+        "rows": [
+          [
+            "War",
+            -534.8832873312098,
+            57
+          ]
+        ],
+        "row_count": 1,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.216,
+      "agent": {
+        "ok": true,
+        "answer": "**Gênero com maior margem de lucro percentual média (dados completos):**  \n- **Gênero:** War  \n- **Margem média:** –525,56 %  \n- **Quantidade de filmes:** 57  \n\n*Observação:* Todas as margens médias são negativas (prejuízo médio). O gênero “War” apresenta a margem menos negativa, ou seja, a maior média entre todos os gêneros. Os valores foram calculados apenas para filmes com receita e orçamento em BRL não nulos e receita > 0, usando a fórmula `100 * (receita_brl - orcamento_brl) / receita_brl`. A lista está ordenada pelo nome do gênero, conforme solicitado.",
+        "queries": [
+          {
+            "id": "call-84ca0ec0-2d46-43b2-8548-f84c7f2d509e",
+            "sql": "WITH movie_margins AS (\n  SELECT\n    bm.sk_movie_id,\n    100.0 * (f.receita_brl - f.orcamento_brl) / f.receita_brl AS margin\n  FROM bridge_movie_genre bm\n  JOIN fact_movies_performance f ON bm.sk_movie_id = f.sk_movie_id\n  WHERE f.receita_brl IS NOT NULL\n    AND f.orcamento_brl IS NOT NULL\n    AND f.receita_brl > 0\n),\ngenre_stats AS (\n  SELECT\n    dg.nome_genero,\n    AVG(mm.margin) AS margem_media,\n    COUNT(DISTINCT mm.sk_movie_id) AS filmes\n  FROM movie_margins mm\n  JOIN bridge_movie_genre bm ON mm.sk_movie_id = bm.sk_movie_id\n  JOIN dim_genres dg ON bm.sk_genre_id = dg.sk_genre_id\n  GROUP BY dg.nome_genero\n),\nmax_margin AS (\n  SELECT MAX(margem_media) AS max_margem FROM genre_stats\n)\nSELECT\n  gs.nome_genero,\n  gs.margem_media,\n  gs.filmes\nFROM genre_stats gs\nJOIN max_margin mm ON gs.margem_media = mm.max_margem\nORDER BY gs.nome_genero;",
+            "result": {
+              "ok": true,
+              "columns": [
+                "nome_genero",
+                "margem_media",
+                "filmes"
+              ],
+              "rows": [
+                [
+                  "War",
+                  -525.5634358196922,
+                  57
+                ]
+              ],
+              "row_count": 1,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          },
+          {
+            "id": "call-6542dd42-6a18-4599-b15c-72fa142ba764",
+            "sql": "WITH movie_margins AS (\n  SELECT\n    bm.sk_movie_id,\n    100.0 * (f.receita_brl - f.orcamento_brl) / f.receita_brl AS margin\n  FROM bridge_movie_genre bm\n  JOIN fact_movies_performance f ON bm.sk_movie_id = f.sk_movie_id\n  WHERE f.receita_brl IS NOT NULL\n    AND f.orcamento_brl IS NOT NULL\n    AND f.receita_brl > 0\n),\ngenre_stats AS (\n  SELECT\n    dg.nome_genero,\n    AVG(mm.margin) AS margem_media,\n    COUNT(DISTINCT mm.sk_movie_id) AS filmes\n  FROM movie_margins mm\n  JOIN bridge_movie_genre bm ON mm.sk_movie_id = bm.sk_movie_id\n  JOIN dim_genres dg ON bm.sk_genre_id = dg.sk_genre_id\n  GROUP BY dg.nome_genero\n)\nSELECT nome_genero, margem_media, filmes\nFROM genre_stats\nORDER BY margem_media DESC\nLIMIT 10;",
+            "result": {
+              "ok": true,
+              "columns": [
+                "nome_genero",
+                "margem_media",
+                "filmes"
+              ],
+              "rows": [
+                [
+                  "War",
+                  -525.5634358196922,
+                  57
+                ],
+                [
+                  "Romance",
+                  -564.8874784487875,
+                  152
+                ],
+                [
+                  "History",
+                  -690.9900889188959,
+                  96
+                ],
+                [
+                  "Animation",
+                  -893.966065865435,
+                  97
+                ],
+                [
+                  "Music",
+                  -1046.9608728918822,
+                  45
+                ],
+                [
+                  "Adventure",
+                  -1094.7743255605699,
+                  246
+                ],
+                [
+                  "Action",
+                  -1156.4780550646963,
+                  379
+                ],
+                [
+                  "Horror",
+                  -1205.2587293088516,
+                  168
+                ],
+                [
+                  "Family",
+                  -1280.0921169737805,
+                  142
+                ],
+                [
+                  "Fantasy",
+                  -1491.6242052487203,
+                  134
+                ]
+              ],
+              "row_count": 10,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 3,
+        "model": "openrouter/free",
+        "actual_models": [
+          "nvidia/nemotron-3-super-120b-a12b:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 14.306,
+      "status": "mismatch",
+      "reason": "Quantidade de linhas diferente da referência.",
+      "matched_query_id": null
+    },
+    {
+      "id": "avaliacoes",
+      "category": "usuarios",
+      "question": "Quais os 10 filmes mais avaliados pelos usuários locais? Mostre a quantidade de avaliações.",
+      "reference_sql": "SELECT m.titulo, r.qtd_avaliacoes_usuarios FROM dim_movies m\n        JOIN dim_reviews r USING(sk_movie_id) WHERE r.qtd_avaliacoes_usuarios>0\n        ORDER BY r.qtd_avaliacoes_usuarios DESC, m.titulo, m.sk_movie_id LIMIT 10",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "titulo",
+          "qtd_avaliacoes_usuarios"
+        ],
+        "rows": [
+          [
+            "Die Hart 2: Die Harter",
+            13
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            12
+          ],
+          [
+            "Die Hart: Die Harter",
+            11
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            10
+          ],
+          [
+            "Die Hart: Die Harter",
+            10
+          ],
+          [
+            "Die Hart: Die Harter",
+            10
+          ],
+          [
+            "Die Hart: Die Harter",
+            10
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            9
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            9
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            9
+          ]
+        ],
+        "row_count": 10,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.601,
+      "agent": {
+        "ok": true,
+        "answer": "Os 10 filmes mais avaliados pelos usuários locais (por quantidade de avaliações `qtd_avaliacoes_usuarios`), ordenados de forma decrescente:\n\n| titulo | qtd_avaliacoes_usuarios |\n|---|---:|\n| Die Hart 2: Die Harter | 13 |\n| Die Hart 2: Die Harter | 12 |\n| Die Hart: Die Harter | 11 |\n| Die Hart: Die Harter | 10 |\n| Die Hart: Die Harter | 10 |\n| Die Hart: Die Harter | 10 |\n| Die Hart 2: Die Harter | 10 |\n| Die Hart 2: Die Harter | 9 |\n| Die Hart 2: Die Harter | 9 |\n| Die Hart 2: Die Harter | 9 |\n\nCritério: ordem decrescente por `qtd_avaliacoes_usuarios` (dados de `dim_reviews`), limite de 10 linhas. A coluna `titulo` aparece repetida porque a base contém títulos homônimos de filmes distintos com pontuações diferentes — foram listados os 10 registros individuais de maior contagem, não títulos únicos. Não houve truncamento de linhas.",
+        "queries": [
+          {
+            "id": "call-50bb80af-a4b2-4cfb-9174-5703506c04c8",
+            "sql": "SELECT m.titulo, r.qtd_avaliacoes_usuarios\nFROM dim_movies m\nJOIN dim_reviews r ON m.sk_movie_id = r.sk_movie_id\nORDER BY r.qtd_avaliacoes_usuarios DESC\nLIMIT 10",
+            "result": {
+              "ok": true,
+              "columns": [
+                "titulo",
+                "qtd_avaliacoes_usuarios"
+              ],
+              "rows": [
+                [
+                  "Die Hart 2: Die Harter",
+                  13
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  12
+                ],
+                [
+                  "Die Hart: Die Harter",
+                  11
+                ],
+                [
+                  "Die Hart: Die Harter",
+                  10
+                ],
+                [
+                  "Die Hart: Die Harter",
+                  10
+                ],
+                [
+                  "Die Hart: Die Harter",
+                  10
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  10
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  9
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  9
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  9
+                ]
+              ],
+              "row_count": 10,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 2,
+        "model": "openrouter/free",
+        "actual_models": [
+          "apodex/apodex-1.1-mini:free",
+          "nvidia/nemotron-3-super-120b-a12b:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 4.842,
+      "status": "mismatch",
+      "reason": "Valor ou ordem divergente na linha 4, coluna 1.",
+      "matched_query_id": null
+    },
+    {
+      "id": "divergencia_usuarios",
+      "category": "usuarios",
+      "question": "Quais os 10 filmes em que a nota média dos usuários locais mais diverge da IMDb? Mostre as duas notas e a diferença.",
+      "reference_sql": "SELECT m.titulo, r.nota_media_usuarios, f.nota_imdb,\n        ABS(r.nota_media_usuarios-f.nota_imdb) AS divergencia FROM dim_movies m\n        JOIN dim_reviews r USING(sk_movie_id) JOIN fact_movies_performance f USING(sk_movie_id)\n        WHERE r.qtd_avaliacoes_usuarios>0 AND r.nota_media_usuarios BETWEEN 0 AND 10\n        AND f.nota_imdb BETWEEN 0 AND 10 AND f.qtd_imdb>0\n        ORDER BY divergencia DESC, m.titulo, m.sk_movie_id LIMIT 10",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "titulo",
+          "nota_media_usuarios",
+          "nota_imdb",
+          "divergencia"
+        ],
+        "rows": [
+          [
+            "The Moon Child",
+            0.0,
+            9.8,
+            9.8
+          ],
+          [
+            "Nathan For You: Finding Frances",
+            0.1,
+            9.5,
+            9.4
+          ],
+          [
+            "Opus Cope: An Algorithmic Opera",
+            0.0,
+            9.3,
+            9.3
+          ],
+          [
+            "Venatio",
+            0.1,
+            9.3,
+            9.200000000000001
+          ],
+          [
+            "Butterfly",
+            0.4,
+            9.6,
+            9.2
+          ],
+          [
+            "702",
+            0.55,
+            9.7,
+            9.149999999999999
+          ],
+          [
+            "Jaimen Hudson: From Sky To Sea",
+            0.2,
+            9.3,
+            9.100000000000001
+          ],
+          [
+            "Red Dead Redemption 2",
+            0.7,
+            9.8,
+            9.100000000000001
+          ],
+          [
+            "Tendlya",
+            0.2,
+            9.3,
+            9.100000000000001
+          ],
+          [
+            "Ivy",
+            0.3,
+            9.4,
+            9.1
+          ]
+        ],
+        "row_count": 10,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.251,
+      "agent": {
+        "ok": true,
+        "answer": "Aqui estão os 10 filmes com maior divergência absoluta entre a nota média dos usuários locais e a nota IMDb:\n\n| titulo | nota_media_usuarios | nota_imdb | divergencia |\n|---|---|---|---|\n| The Moon Child | 0.0 | 9.8 | 9.80 |\n| Nathan For You: Finding Frances | 0.1 | 9.5 | 9.40 |\n| Opus Cope: An Algorithmic Opera | 0.0 | 9.3 | 9.30 |\n| Venatio | 0.1 | 9.3 | 9.20 |\n| Butterfly | 0.4 | 9.6 | 9.20 |\n| 702 | 0.55 | 9.7 | 9.15 |\n| Jaimen Hudson: From Sky To Sea | 0.2 | 9.3 | 9.10 |\n| Tendlya | 0.2 | 9.3 | 9.10 |\n| Red Dead Redemption 2 | 0.7 | 9.8 | 9.10 |\n| Ivy | 0.3 | 9.4 | 9.10 |\n\n**Critério:** diferença absoluta entre `nota_media_usuarios` (dim_reviews) e `nota_imdb` (fact_movies_performance), considerando apenas filmes com ambas as notas presentes e com ao menos uma avaliação em cada plataforma. Ordenação pela divergência bruta (sem arredondamento), exibição arredondada para 2 casas.",
+        "queries": [
+          {
+            "id": "call-19f2a2b4-7940-48db-8af5-4c676840ce90",
+            "sql": "SELECT d.titulo,\n       r.nota_media_usuarios,\n       f.nota_imdb,\n       ABS(r.nota_media_usuarios - f.nota_imdb) AS divergencia\nFROM dim_reviews r\nJOIN fact_movies_performance f ON r.sk_movie_id = f.sk_movie_id\nJOIN dim_movies d ON d.sk_movie_id = r.sk_movie_id\nWHERE r.nota_media_usuarios IS NOT NULL\n  AND r.qtd_avaliacoes_usuarios > 0\n  AND f.nota_imdb IS NOT NULL\n  AND f.qtd_imdb > 0\nORDER BY divergencia DESC\nLIMIT 10",
+            "result": {
+              "ok": true,
+              "columns": [
+                "titulo",
+                "nota_media_usuarios",
+                "nota_imdb",
+                "divergencia"
+              ],
+              "rows": [
+                [
+                  "The Moon Child",
+                  0.0,
+                  9.8,
+                  9.8
+                ],
+                [
+                  "Nathan For You: Finding Frances",
+                  0.1,
+                  9.5,
+                  9.4
+                ],
+                [
+                  "Opus Cope: An Algorithmic Opera",
+                  0.0,
+                  9.3,
+                  9.3
+                ],
+                [
+                  "Venatio",
+                  0.1,
+                  9.3,
+                  9.200000000000001
+                ],
+                [
+                  "Butterfly",
+                  0.4,
+                  9.6,
+                  9.2
+                ],
+                [
+                  "702",
+                  0.55,
+                  9.7,
+                  9.149999999999999
+                ],
+                [
+                  "Jaimen Hudson: From Sky To Sea",
+                  0.2,
+                  9.3,
+                  9.100000000000001
+                ],
+                [
+                  "Tendlya",
+                  0.2,
+                  9.3,
+                  9.100000000000001
+                ],
+                [
+                  "Red Dead Redemption 2",
+                  0.7,
+                  9.8,
+                  9.100000000000001
+                ],
+                [
+                  "Ivy",
+                  0.3,
+                  9.4,
+                  9.1
+                ]
+              ],
+              "row_count": 10,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 2,
+        "model": "openrouter/free",
+        "actual_models": [
+          "inclusionai/ling-3.0-flash-sante:free",
+          "nvidia/nemotron-3.5-lightning:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 22.267,
+      "status": "mismatch",
+      "reason": "Valor ou ordem divergente na linha 8, coluna 1.",
+      "matched_query_id": null
+    }
+  ],
+  "summary": {
+    "agent_error": 2,
+    "mismatch": 4,
+    "passed": 8
+  },
+  "comparison_version": 2
+}

@@ -58,6 +58,8 @@ Papéis estão em dim_people.tipo_pessoa: 'Ator', 'Diretor', 'Roteirista'. A cha
 o papel; não funda nomes iguais nem elimine pares ator-diretor só pelo nome igual.
 Dupla ator-diretor: duas pontes pelo mesmo filme, filtre os papéis e conte filmes
 distintos por par de chaves. Pode haver homônimos indistinguíveis neste modelo.
+Para duplas, filtre atores e diretores em CTEs AS MATERIALIZED antes de cruzar por
+filme; evite cruzar todas as pessoas e só então filtrar os papéis.
 Gêneros estão em inglês: Ação=Action, Aventura=Adventure, Animação=Animation,
 Comédia=Comedy, Crime=Crime, Documentário=Documentary, Drama=Drama, Família=Family,
 Fantasia=Fantasy, Histórico=History, Terror=Horror, Música=Music, Mistério=Mystery,
@@ -103,4 +105,27 @@ def build_system_prompt(db_path: Path, reference_date: date) -> str:
         + f"Últimos cinco anos: {start.isoformat()} a {reference_date.isoformat()}.\n"
         + "\nEsquema disponível:\n"
         + "\n".join(schema)
+        + "\n\nChecklist obrigatório antes de consultar: em qualquer análise de notas IMDb, "
+        "aplique nota_imdb BETWEEN 0 AND 10 AND qtd_imdb > 0. Para TMDB, "
+        "aplique nota_tmdb BETWEEN 0 AND 10 AND qtd_tmdb > 0. Na divergência TMDB/IMDb, "
+        "os DOIS filtros são obrigatórios juntos. IS NOT NULL sozinho não basta. "
+        "Uma nota zero COM votos é válida e deve ser preservada. Não trate essas "
+        "condições como opcionais, mesmo quando a pergunta não repetir a regra."
+        + "\nPara margem por gênero, o CTE inicial deve partir de fact_movies_performance, "
+        "com UMA linha por sk_movie_id; só depois junte bridge_movie_genre UMA vez e agregue. "
+        "Não calcule margens a partir da ponte e junte a mesma ponte novamente. "
+        "Para 'qual tem a maior' e todos os empatados, filtre o agregado pelo MAX da métrica, "
+        "não use LIMIT 10. Para top N, ordene métrica DESC, titulo/nome ASC e chave ASC, "
+        "inclusive em avaliações locais. Um título pode identificar filmes diferentes. "
+        "Na dupla ator-diretor, AS MATERIALIZED nas duas CTEs de papéis é necessário "
+        "para evitar atingir o limite de execução; agrupe pelas chaves, não pelos nomes."
+        + "\nPara avaliações locais, titulo vem SEMPRE de dim_movies: "
+        "FROM dim_movies m JOIN dim_reviews r USING(sk_movie_id), usando m.titulo "
+        "e r.qtd_avaliacoes_usuarios. dim_reviews não contém titulo. "
+        "Ordene r.qtd_avaliacoes_usuarios DESC, m.titulo ASC, m.sk_movie_id ASC. "
+        "Lucro médio por gênero com receita informada requer "
+        "dim_genres JOIN bridge_movie_genre USING(sk_genre_id) "
+        "JOIN fact_movies_performance USING(sk_movie_id), filtro receita_brl IS NOT NULL "
+        "e GROUP BY sk_genre_id, com AVG(lucro_brl), COUNT(*) e "
+        "SUM(orcamento_brl IS NULL). Faça a chamada de ferramenta, não apenas descreva o SQL."
     )

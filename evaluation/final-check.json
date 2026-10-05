@@ -1,0 +1,499 @@
+{
+  "mode": "live",
+  "reference_date": "2026-10-04",
+  "database_sha256": "410f5beef6ab9fb34b9044d5dd191f56f3f0dc30a56e6432386ecef0d977b012",
+  "model": "openrouter/free",
+  "max_model_calls_per_question": 2,
+  "comparison_version": 2,
+  "call_budget": 6,
+  "model_calls": 5,
+  "cases": [
+    {
+      "id": "lucro_genero",
+      "category": "financas",
+      "question": "Qual o lucro médio em reais por gênero, considerando apenas receita informada? Mostre a quantidade de filmes e quantos não têm orçamento. Ordene pelo gênero.",
+      "reference_sql": "SELECT g.nome_genero, AVG(f.lucro_brl) AS lucro_medio_brl,\n        COUNT(*) AS filmes, SUM(f.orcamento_brl IS NULL) AS sem_orcamento\n        FROM dim_genres g JOIN bridge_movie_genre b USING(sk_genre_id)\n        JOIN fact_movies_performance f USING(sk_movie_id) WHERE f.receita_brl IS NOT NULL\n        GROUP BY g.sk_genre_id ORDER BY g.nome_genero, g.sk_genre_id",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "nome_genero",
+          "lucro_medio_brl",
+          "filmes",
+          "sem_orcamento"
+        ],
+        "rows": [
+          [
+            "Action",
+            343223021.8728956,
+            594,
+            215
+          ],
+          [
+            "Adventure",
+            514678791.3929771,
+            393,
+            147
+          ],
+          [
+            "Animation",
+            303517897.374728,
+            239,
+            142
+          ],
+          [
+            "Comedy",
+            143589472.55178353,
+            813,
+            410
+          ],
+          [
+            "Crime",
+            93988989.26714286,
+            294,
+            128
+          ],
+          [
+            "Documentary",
+            5028959.4421568625,
+            153,
+            113
+          ],
+          [
+            "Drama",
+            84161852.72059368,
+            1297,
+            695
+          ],
+          [
+            "Family",
+            324648758.3319318,
+            264,
+            122
+          ],
+          [
+            "Fantasy",
+            335448446.35188234,
+            255,
+            121
+          ],
+          [
+            "History",
+            146826836.6097661,
+            171,
+            75
+          ],
+          [
+            "Horror",
+            92805277.19780679,
+            383,
+            215
+          ],
+          [
+            "Music",
+            111985444.2848,
+            100,
+            55
+          ],
+          [
+            "Mystery",
+            119462433.48792683,
+            246,
+            119
+          ],
+          [
+            "Romance",
+            98645875.98897436,
+            312,
+            160
+          ],
+          [
+            "Science Fiction",
+            520783718.3286344,
+            227,
+            93
+          ],
+          [
+            "Thriller",
+            92872345.46579455,
+            623,
+            302
+          ],
+          [
+            "Tv Movie",
+            9228474.485,
+            10,
+            7
+          ],
+          [
+            "War",
+            194016703.28296703,
+            91,
+            34
+          ],
+          [
+            "Western",
+            -3581373.251999998,
+            20,
+            9
+          ]
+        ],
+        "row_count": 19,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.206,
+      "agent": {
+        "ok": false,
+        "error": {
+          "code": "no_query_result",
+          "message": "O modelo não obteve uma consulta válida no banco."
+        },
+        "queries": [],
+        "model_calls": 1,
+        "diagnostics": {
+          "finish_reason": "stop",
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "usage": {
+            "input_tokens": 2764,
+            "output_tokens": 945,
+            "total_tokens": 3709,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 717
+            }
+          }
+        }
+      },
+      "agent_seconds": 30.745,
+      "status": "agent_error",
+      "reason": "no_query_result"
+    },
+    {
+      "id": "divergencia_notas",
+      "category": "popularidade",
+      "question": "Quais os 10 filmes com maior divergência entre TMDB e IMDb? Mostre as notas e a diferença.",
+      "reference_sql": "SELECT m.titulo, f.nota_tmdb, f.nota_imdb,\n        ABS(f.nota_tmdb-f.nota_imdb) AS divergencia FROM dim_movies m\n        JOIN fact_movies_performance f USING(sk_movie_id)\n        WHERE f.nota_tmdb BETWEEN 0 AND 10 AND f.qtd_tmdb>0\n        AND f.nota_imdb BETWEEN 0 AND 10 AND f.qtd_imdb>0\n        ORDER BY divergencia DESC, m.titulo, m.sk_movie_id LIMIT 10",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "titulo",
+          "nota_tmdb",
+          "nota_imdb",
+          "divergencia"
+        ],
+        "rows": [
+          [
+            "Alfredo",
+            1.0,
+            10.0,
+            9.0
+          ],
+          [
+            "Hit Me",
+            0.0,
+            9.0,
+            9.0
+          ],
+          [
+            "The 9th Annual On Cinema Oscar Special",
+            0.0,
+            9.0,
+            9.0
+          ],
+          [
+            "Sweethearts Of The Gridiron",
+            0.0,
+            8.6,
+            8.6
+          ],
+          [
+            "Madre Luna",
+            0.0,
+            8.5,
+            8.5
+          ],
+          [
+            "The Farmer",
+            0.5,
+            9.0,
+            8.5
+          ],
+          [
+            "Afraid Of The Night",
+            1.0,
+            9.3,
+            8.3
+          ],
+          [
+            "Dick Van Dyke: 98 Years Of Magic",
+            0.0,
+            8.3,
+            8.3
+          ],
+          [
+            "Fan Club",
+            1.0,
+            9.3,
+            8.3
+          ],
+          [
+            "Rosario",
+            0.0,
+            8.3,
+            8.3
+          ]
+        ],
+        "row_count": 10,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.16,
+      "agent": {
+        "ok": true,
+        "answer": "| titulo | nota_tmdb | nota_imdb | divergencia |\n|---|---:|---:|---:|\n| Alfredo | 1.0 | 10.0 | 9.0 |\n| Hit Me | 0.0 | 9.0 | 9.0 |\n| The 9th Annual On Cinema Oscar Special | 0.0 | 9.0 | 9.0 |\n| Sweethearts Of The Gridiron | 0.0 | 8.6 | 8.6 |\n| Madre Luna | 0.0 | 8.5 | 8.5 |\n| The Farmer | 0.5 | 9.0 | 8.5 |\n| Afraid Of The Night | 1.0 | 9.3 | 8.3 |\n| Dick Van Dyke: 98 Years Of Magic | 0.0 | 8.3 | 8.3 |\n| Fan Club | 1.0 | 9.3 | 8.3 |\n| Rosario | 0.0 | 8.3 | 8.3 |\n\nCritério: divergência calculada como `ABS(nota_tmdb - nota_imdb)`, considerando apenas notas válidas nas duas plataformas (nota entre 0 e 10 e quantidade de votos maior que zero). Amostra: 10 filmes.",
+        "queries": [
+          {
+            "id": "call-123439e8-8008-4846-8b2e-e4b65af94f57",
+            "sql": "WITH valid AS (\n  SELECT m.titulo,\n         f.nota_tmdb,\n         f.nota_imdb,\n         ABS(f.nota_tmdb - f.nota_imdb) AS divergencia,\n         m.sk_movie_id\n  FROM dim_movies m\n  JOIN fact_movies_performance f ON m.sk_movie_id = f.sk_movie_id\n  WHERE f.nota_tmdb IS NOT NULL\n    AND f.nota_tmdb BETWEEN 0 AND 10\n    AND f.qtd_tmdb > 0\n    AND f.nota_imdb IS NOT NULL\n    AND f.nota_imdb BETWEEN 0 AND 10\n    AND f.qtd_imdb > 0\n)\nSELECT titulo,\n       nota_tmdb,\n       nota_imdb,\n       divergencia\nFROM valid\nORDER BY divergencia DESC, titulo ASC, sk_movie_id ASC\nLIMIT 10;",
+            "result": {
+              "ok": true,
+              "columns": [
+                "titulo",
+                "nota_tmdb",
+                "nota_imdb",
+                "divergencia"
+              ],
+              "rows": [
+                [
+                  "Alfredo",
+                  1.0,
+                  10.0,
+                  9.0
+                ],
+                [
+                  "Hit Me",
+                  0.0,
+                  9.0,
+                  9.0
+                ],
+                [
+                  "The 9th Annual On Cinema Oscar Special",
+                  0.0,
+                  9.0,
+                  9.0
+                ],
+                [
+                  "Sweethearts Of The Gridiron",
+                  0.0,
+                  8.6,
+                  8.6
+                ],
+                [
+                  "Madre Luna",
+                  0.0,
+                  8.5,
+                  8.5
+                ],
+                [
+                  "The Farmer",
+                  0.5,
+                  9.0,
+                  8.5
+                ],
+                [
+                  "Afraid Of The Night",
+                  1.0,
+                  9.3,
+                  8.3
+                ],
+                [
+                  "Dick Van Dyke: 98 Years Of Magic",
+                  0.0,
+                  8.3,
+                  8.3
+                ],
+                [
+                  "Fan Club",
+                  1.0,
+                  9.3,
+                  8.3
+                ],
+                [
+                  "Rosario",
+                  0.0,
+                  8.3,
+                  8.3
+                ]
+              ],
+              "row_count": 10,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 2,
+        "model": "openrouter/free",
+        "actual_models": [
+          "nvidia/nemotron-3-super-120b-a12b:free",
+          "qwen/qwen3.8-27b:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 13.85,
+      "status": "passed",
+      "reason": "Linhas e valores coincidem com a referência.",
+      "matched_query_id": "call-123439e8-8008-4846-8b2e-e4b65af94f57"
+    },
+    {
+      "id": "avaliacoes",
+      "category": "usuarios",
+      "question": "Quais os 10 filmes mais avaliados pelos usuários locais? Mostre a quantidade de avaliações.",
+      "reference_sql": "SELECT m.titulo, r.qtd_avaliacoes_usuarios FROM dim_movies m\n        JOIN dim_reviews r USING(sk_movie_id) WHERE r.qtd_avaliacoes_usuarios>0\n        ORDER BY r.qtd_avaliacoes_usuarios DESC, m.titulo, m.sk_movie_id LIMIT 10",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "titulo",
+          "qtd_avaliacoes_usuarios"
+        ],
+        "rows": [
+          [
+            "Die Hart 2: Die Harter",
+            13
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            12
+          ],
+          [
+            "Die Hart: Die Harter",
+            11
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            10
+          ],
+          [
+            "Die Hart: Die Harter",
+            10
+          ],
+          [
+            "Die Hart: Die Harter",
+            10
+          ],
+          [
+            "Die Hart: Die Harter",
+            10
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            9
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            9
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            9
+          ]
+        ],
+        "row_count": 10,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.146,
+      "agent": {
+        "ok": false,
+        "error": {
+          "code": "agent_limit",
+          "message": "O agente atingiu o limite de chamadas sem concluir a resposta."
+        },
+        "queries": [
+          {
+            "id": "chatcmpl-tool-818dc984dd0f3f5e",
+            "sql": "SELECT d.titulo AS \"titulo\", d.qtd_avaliacoes_usuarios AS \"qtd_avaliacoes_usuarios\" FROM dim_reviews d WHERE d.qtd_avaliacoes_usuarios IS NOT NULL ORDER BY d.qtd_avaliacoes_usuarios DESC LIMIT 10;",
+            "result": {
+              "ok": false,
+              "error": {
+                "code": "sqlite_error",
+                "message": "no such column: d.titulo"
+              }
+            }
+          },
+          {
+            "id": "call-c20ab423-3403-489d-ab79-ed98b75a75f7",
+            "sql": "SELECT m.titulo AS \"titulo\", d.qtd_avaliacoes_usuarios AS \"qtd_avaliacoes_usuarios\" FROM dim_reviews d JOIN dim_movies m ON d.sk_movie_id = m.sk_movie_id WHERE d.qtd_avaliacoes_usuarios IS NOT NULL ORDER BY d.qtd_avaliacoes_usuarios DESC LIMIT 10;",
+            "result": {
+              "ok": true,
+              "columns": [
+                "titulo",
+                "qtd_avaliacoes_usuarios"
+              ],
+              "rows": [
+                [
+                  "Die Hart 2: Die Harter",
+                  13
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  12
+                ],
+                [
+                  "Die Hart: Die Harter",
+                  11
+                ],
+                [
+                  "Die Hart: Die Harter",
+                  10
+                ],
+                [
+                  "Die Hart: Die Harter",
+                  10
+                ],
+                [
+                  "Die Hart: Die Harter",
+                  10
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  10
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  9
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  9
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  9
+                ]
+              ],
+              "row_count": 10,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 2
+      },
+      "agent_seconds": 7.526,
+      "status": "agent_error",
+      "reason": "agent_limit"
+    }
+  ],
+  "summary": {
+    "agent_error": 2,
+    "passed": 1
+  }
+}

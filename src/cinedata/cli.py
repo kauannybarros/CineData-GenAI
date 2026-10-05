@@ -4,7 +4,9 @@ import argparse
 import json
 import sqlite3
 from contextlib import closing
+from dataclasses import replace
 from datetime import date
+from pathlib import Path
 
 from cinedata.config import load_settings
 from cinedata.database import QueryLimits, execute_query
@@ -60,9 +62,51 @@ def main() -> int:
     ask.add_argument(
         "--json", action="store_true", help="Retorna resposta, SQL e resultados em JSON"
     )
+    evaluate = subcommands.add_parser("evaluate", help="Avalia consultas de referência ou o agente")
+    evaluate.add_argument("--live", action="store_true", help="Usa OpenRouter e consome chamadas")
+    evaluate.add_argument("--max-calls", type=int, default=10, help="Orçamento total de chamadas")
+    evaluate.add_argument(
+        "--case", action="append", dest="case_ids", help="Seleciona um caso por ID"
+    )
+    evaluate.add_argument("--reference-date", type=date.fromisoformat, default=date(2026, 10, 4))
+    evaluate.add_argument("--output", type=Path, help="Caminho do relatório JSON")
+    evaluate.add_argument(
+        "--calls-per-question",
+        type=int,
+        choices=range(2, 6),
+        help="Orçamento por pergunta nesta avaliação",
+    )
+    evaluate.add_argument("--rescore", type=Path, help="Recompara relatório salvo, sem API")
     args = parser.parse_args()
     if args.command == "check":
         return check_environment(require_key=args.require_key)
+    if args.command == "evaluate":
+        from cinedata.evaluation import rescore_report, run_evaluation
+
+        output = args.output or Path(
+            "evaluation/live.json" if args.live else "evaluation/references.json"
+        )
+        try:
+            if args.rescore:
+                output = args.rescore
+                report = rescore_report(output)
+            else:
+                settings = load_settings()
+                if args.calls_per_question:
+                    settings = replace(settings, max_model_calls=args.calls_per_question)
+                report = run_evaluation(
+                    settings,
+                    args.reference_date,
+                    live=args.live,
+                    max_calls=args.max_calls,
+                    case_ids=args.case_ids,
+                    output_path=output,
+                )
+        except (ValueError, OSError) as exc:
+            parser.error(str(exc))
+        print(json.dumps(report["summary"], ensure_ascii=False))
+        print(f"Chamadas ao modelo: {report['model_calls']}; relatório: {output}")
+        return int(any(c["status"] not in {"reference_ok", "passed"} for c in report["cases"]))
     if args.command == "ask":
         from cinedata.agent import ask_question
 

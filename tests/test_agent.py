@@ -23,12 +23,14 @@ class ScriptedModel(BaseChatModel):
     calls: int = 0
     fail_on_call: int | None = None
     received_tool_results: list[str] = []
+    bound_choices: list = []
 
     @property
     def _llm_type(self):
         return "scripted-test"
 
     def bind_tools(self, tools, **kwargs):
+        self.bound_choices.append(kwargs.get("tool_choice"))
         return self
 
     def _generate(self, messages, stop=None, run_manager=None, **kwargs):
@@ -77,6 +79,8 @@ class AgentTests(unittest.TestCase):
         self.assertEqual(result["queries"][0]["result"]["rows"], [[2]])
         self.assertIn('"rows": [[2]]', model.received_tool_results[-1])
         self.assertEqual(result["reference_date"], "2026-10-04")
+        self.assertEqual(model.bound_choices[0], "required")
+        self.assertIsNone(model.bound_choices[-1])
 
     def test_model_can_correct_sql_within_budget(self):
         model = ScriptedModel(
@@ -164,6 +168,7 @@ class AgentTests(unittest.TestCase):
         self.assertIsNone(model.client.sdk_configuration.retry_config)
         self.assertEqual(model.client.sdk_configuration.timeout_ms, 45000)
         self.assertEqual(model.max_retries, 0)
+        self.assertEqual(model.max_tokens, 8192)
 
     def test_invalid_env_budget(self):
         with patch.dict("os.environ", {"CINEDATA_MAX_MODEL_CALLS": "100"}):
