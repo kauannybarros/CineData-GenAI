@@ -121,8 +121,8 @@ validar nomes com `dim_genres`, sem presumir categorias fora do catálogo.
 “Últimos cinco anos” usa uma janela móvel de cinco anos civis, inclusiva, encerrada
 em `:reference_date`, informada na resposta. Na referência de 04/10/2026, o intervalo
 é 04/10/2021–04/10/2026. Para 29/02 sem equivalente no ano inicial, usar 28/02.
-Calcular as datas no aplicativo e vinculá-las como parâmetros, sem depender do
-relógio do SQLite. Se o usuário pedir cinco anos completos, excluir o ano corrente
+Calcular a janela móvel no aplicativo e fornecer as datas ISO no contexto do agente,
+sem depender do relógio do SQLite. Se o usuário pedir cinco anos completos, excluir o ano corrente
 e usar os cinco anos anteriores. Não confundir cinco anos com 1.825 dias.
 
 Agrupamentos por ano usam `ano_lancamento`. Perguntas sobre filmes lançados precisam
@@ -147,3 +147,10 @@ quando a pergunta ultrapassar 2016–2029 ou pressupuser um catálogo histórico
 | Gênero com maior margem média | Gênero → ponte → desempenho; média das margens | Receita positiva e orçamento informado; média não ponderada; empates |
 | Filmes mais avaliados por usuários | Filme → `dim_reviews`; quantidade local | Avaliações positivas; não usar contagem IMDb/TMDB |
 | Divergência usuários/IMDb | Filme → desempenho e `dim_reviews`; diferença absoluta | IMDb válida e avaliação local válida |
+
+## Aplicação no agente
+
+Os critérios essenciais orientam o agente por meio de `src/cinedata/prompts.py`,
+junto com o esquema real inspecionado localmente. Este documento explica os critérios
+para desenvolvedores e não é carregado durante a execução. Mudanças de critérios
+devem atualizar tanto este documento quanto o prompt. 
