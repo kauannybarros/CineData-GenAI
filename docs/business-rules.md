@@ -1,8 +1,8 @@
 # Regras de interpretação das análises
 
-Estas são decisões de projeto para a futura implementação do agente, baseadas no
-[modelo inspecionado](data-model.md) e no enunciado. Não são funcionalidades já
-implementadas nem regras descobertas no DDL. O usuário pode pedir outros critérios;
+Estes critérios orientam o agente e as consultas de referência, com base no
+[modelo inspecionado](data-model.md) e no enunciado. São decisões de interpretação,
+não restrições declaradas no DDL. O usuário pode pedir outros critérios;
 a resposta deve explicitar os filtros e fórmulas realmente usados.
 
 ## Convenções gerais
@@ -48,7 +48,7 @@ silenciosamente nem chamar o lucro com custo ausente de rentabilidade comprovada
 
 **Margem de lucro** é `100.0 * (receita_brl - orcamento_brl) / receita_brl`, com ambos
 informados e receita positiva. Prejuízos são válidos e geram margens negativas.
-Orçamento zero, se existir numa futura base, não impede margem sobre receita.
+Orçamento zero não impede margem sobre receita.
 
 **ROI**, quando solicitado, é `100.0 * (receita_brl - orcamento_brl) / orcamento_brl`,
 com receita informada e orçamento positivo. ROI e margem têm denominadores distintos.
@@ -153,4 +153,4 @@ quando a pergunta ultrapassar 2016–2029 ou pressupuser um catálogo histórico
 Os critérios essenciais orientam o agente por meio de `src/cinedata/prompts.py`,
 junto com o esquema real inspecionado localmente. Este documento explica os critérios
 para desenvolvedores e não é carregado durante a execução. Mudanças de critérios
-devem atualizar tanto este documento quanto o prompt. 
+devem atualizar tanto este documento quanto o prompt.
