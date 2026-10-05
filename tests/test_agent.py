@@ -77,6 +77,8 @@ class AgentTests(unittest.TestCase):
         self.assertTrue(result["ok"], result)
         self.assertEqual(result["model_calls"], 2)
         self.assertEqual(result["queries"][0]["result"]["rows"], [[2]])
+        self.assertIn("| filmes |", result["data_tables"])
+        self.assertIn("| 2 |", result["data_tables"])
         self.assertIn('"rows": [[2]]', model.received_tool_results[-1])
         self.assertEqual(result["reference_date"], "2026-10-04")
         self.assertEqual(model.bound_choices[0], "required")
@@ -104,6 +106,7 @@ class AgentTests(unittest.TestCase):
         )
         self.assertEqual(result["error"]["code"], "no_query_result")
         self.assertNotIn("answer", result)
+        self.assertEqual(result["data_tables"], "")
 
     def test_tokens_include_sql_and_answer_without_recounting_graph_states(self):
         query = sql_call("SELECT COUNT(*) AS filmes FROM dim_movies")
@@ -190,6 +193,7 @@ class AgentTests(unittest.TestCase):
         result = ask_question(self.settings, "Quantos filmes?", model=model)
         self.assertEqual(result["error"]["code"], "connection_error")
         self.assertEqual(result["queries"][0]["result"]["rows"], [[2]])
+        self.assertIn("| 2 |", result["data_tables"])
         self.assertNotIn("Detalhe privado", str(result))
 
     def test_input_validation_does_not_call_model(self):

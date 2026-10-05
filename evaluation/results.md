@@ -95,6 +95,14 @@ Após a inclusão do registro de tokens, os 32 testes locais passaram, assim com
 Ruff, verificação de formatação e dependências. O registro soma os valores
 reportados por chamada e indica se a cobertura é parcial, inclusive em falhas.
 
+Com as tabelas geradas pelo Python, os 38 testes locais passaram. Eles verificam
+preservação de números, ordem, colunas duplicadas, valores ausentes, caracteres
+especiais, resultados parciais e separação da explicação do modelo na CLI. Não foram
+feitas novas chamadas ao OpenRouter para essa mudança. Os relatórios reais acima
+antecedem a orientação atual para que o modelo apenas explique os resultados; não
+representam uma nova avaliação desse prompt. As tabelas garantem fidelidade aos dados
+de cada consulta bem-sucedida, sem certificar que o SQL representa a pergunta.
+
 ## Correções e cuidados
 
 O prompt reforça filtros de votos, divisão em ponto flutuante, uma linha por filme

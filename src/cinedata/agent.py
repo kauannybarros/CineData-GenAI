@@ -22,6 +22,7 @@ from langgraph.errors import GraphRecursionError
 from openrouter import OpenRouter
 
 from cinedata.config import Settings
+from cinedata.presentation import render_query_tables
 from cinedata.prompts import build_system_prompt
 from cinedata.tools import create_sql_tool
 
@@ -115,6 +116,7 @@ def ask_question(
             "ok": False,
             "error": {"code": code, "message": message},
             "queries": trace,
+            "data_tables": render_query_tables(trace),
             "model_calls": counter.calls,
             "token_usage": counter.token_usage(),
         }
@@ -202,6 +204,7 @@ def ask_question(
             "ok": True,
             "answer": answer,
             "queries": trace,
+            "data_tables": render_query_tables(trace),
             "model_calls": counter.calls,
             "token_usage": counter.token_usage(),
             "model": settings.model,

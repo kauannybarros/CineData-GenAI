@@ -111,6 +111,7 @@ docs/business-rules.md Critérios das análises e mapeamento das perguntas
 docs/schema.sql        Esquema extraído do banco
 docs/database-profile.json  Metadados e resultados de verificações
 scripts/profile_database.py  Reprodução da inspeção em modo somente leitura
+src/cinedata/presentation.py  Tabelas geradas diretamente dos resultados SQL
 .env.example          Configuração de exemplo, sem segredos
 pyproject.toml        Metadados, dependências e configuração do Ruff
 requirements.lock     Versões instaladas
@@ -187,9 +188,23 @@ cinedata ask 'Qual ator participou de mais filmes lançados nos últimos cinco a
 ```
 
 O agente exige a ferramenta na primeira chamada, recebe o resultado e explica a análise em
-português. `--show-sql` apresenta as consultas propostas; `--json` inclui resposta,
-consultas, resultados, data de referência e número de chamadas ao modelo. Uma consulta
+português. No terminal, o Python apresenta uma tabela para cada consulta bem-sucedida,
+antes da explicação do modelo. Colunas, ordem e valores vêm dos resultados SQL, sem
+arredondamento adicional; ausências aparecem como `Não informado`. Resultados vazios,
+linhas cortadas e textos abreviados pelo executor recebem avisos explícitos. As tabelas
+são formatadas em Markdown; quebras de linha e controles em células aparecem escapados.
+
+`--show-sql` apresenta as consultas propostas; `--json` inclui resposta,
+consultas, resultados, tabelas em `data_tables`, data de referência e número de chamadas
+ao modelo. Uma consulta
 proposta pode falhar; confira `result.ok` no JSON para saber se foi executada com sucesso.
+
+As tabelas também são preservadas quando uma chamada posterior falha. Todas as
+consultas bem-sucedidas são exibidas, incluindo auxiliares; o aplicativo não escolhe
+automaticamente a consulta principal. O prompt orienta o modelo a explicar critérios
+e limitações sem reproduzir tabelas ou rankings. A explicação ainda pode conter erros:
+a apresentação garante fidelidade aos dados retornados, mas não valida a interpretação
+da pergunta, a correção do SQL nem todas as afirmações do modelo.
 
 O campo `token_usage` registra tokens de entrada, saída e total reportados pelo
 provedor, somados entre as chamadas da pergunta. `calls_with_usage` informa quantas

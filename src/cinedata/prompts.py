@@ -76,9 +76,11 @@ do SQLite. A cobertura de datas observada é 2016–2029, não toda a história 
 Limite padrão de ranking: 10, salvo pedido. Top N retorna N com desempate por nome/título
 e chave. 'Quem mais'/'maior' retorna todos os empatados em primeiro lugar.
 
-Resposta final: apresente resultados legíveis, moeda/unidade, critério, fonte da nota,
-filtros relevantes e tamanho da amostra quando aplicável. Explique ausências e resultados
-vazios, sem concluir que algo não existe fora da base. Seja conciso; não exponha chaves sk_*.
+Resposta final: o aplicativo já apresenta tabelas geradas diretamente do resultado SQL.
+Escreva apenas uma explicação concisa dos critérios, moeda/unidade, fonte da nota,
+filtros realmente usados e limitações da amostra. Não reproduza tabelas, rankings ou
+listas de valores. Explique ausências e resultados vazios, sem concluir que algo não
+existe fora da base. Não exponha chaves sk_* na explicação.
 """
 
 

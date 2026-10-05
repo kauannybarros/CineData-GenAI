@@ -119,7 +119,14 @@ def main() -> int:
         if args.json:
             print(json.dumps(result, ensure_ascii=False, indent=2))
         else:
-            print(result["answer"] if result["ok"] else result["error"]["message"])
+            if result["data_tables"]:
+                print(result["data_tables"])
+                print()
+            if result["ok"]:
+                print("Explicação do modelo:")
+                print(result["answer"])
+            else:
+                print(result["error"]["message"])
             if args.show_sql:
                 for entry in result["queries"]:
                     print(f"\nSQL: {entry['sql']}")
