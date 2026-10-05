@@ -1,0 +1,897 @@
+{
+  "reference_date": "2026-10-04",
+  "tables": {
+    "alembic_version": {
+      "row_count": 1,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "version_num",
+          "type": "VARCHAR(32)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "sqlite_autoindex_alembic_version_1",
+          "unique": 1,
+          "origin": "pk",
+          "partial": 0
+        }
+      ]
+    },
+    "bridge_movie_company": {
+      "row_count": 116326,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "sk_movie_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "sk_company_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 2
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "dim_companies",
+          "from": "sk_company_id",
+          "to": "sk_company_id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "seq": 0,
+          "table": "dim_movies",
+          "from": "sk_movie_id",
+          "to": "sk_movie_id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "sqlite_autoindex_bridge_movie_company_1",
+          "unique": 1,
+          "origin": "pk",
+          "partial": 0
+        }
+      ]
+    },
+    "bridge_movie_genre": {
+      "row_count": 121521,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "sk_movie_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "sk_genre_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 2
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "dim_genres",
+          "from": "sk_genre_id",
+          "to": "sk_genre_id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "seq": 0,
+          "table": "dim_movies",
+          "from": "sk_movie_id",
+          "to": "sk_movie_id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "sqlite_autoindex_bridge_movie_genre_1",
+          "unique": 1,
+          "origin": "pk",
+          "partial": 0
+        }
+      ]
+    },
+    "bridge_movie_person": {
+      "row_count": 745450,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "sk_movie_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "sk_person_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 2
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "dim_people",
+          "from": "sk_person_id",
+          "to": "sk_person_id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "seq": 0,
+          "table": "dim_movies",
+          "from": "sk_movie_id",
+          "to": "sk_movie_id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "ix_bridge_movie_person_sk_person_id",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0
+        },
+        {
+          "seq": 1,
+          "name": "sqlite_autoindex_bridge_movie_person_1",
+          "unique": 1,
+          "origin": "pk",
+          "partial": 0
+        }
+      ]
+    },
+    "dim_companies": {
+      "row_count": 45941,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "sk_company_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "nome_produtora",
+          "type": "VARCHAR(255)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "sqlite_autoindex_dim_companies_2",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0
+        },
+        {
+          "seq": 1,
+          "name": "sqlite_autoindex_dim_companies_1",
+          "unique": 1,
+          "origin": "pk",
+          "partial": 0
+        }
+      ]
+    },
+    "dim_genres": {
+      "row_count": 19,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "sk_genre_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "nome_genero",
+          "type": "VARCHAR(50)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "sqlite_autoindex_dim_genres_2",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0
+        },
+        {
+          "seq": 1,
+          "name": "sqlite_autoindex_dim_genres_1",
+          "unique": 1,
+          "origin": "pk",
+          "partial": 0
+        }
+      ]
+    },
+    "dim_movies": {
+      "row_count": 95645,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "sk_movie_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "id_filme",
+          "type": "VARCHAR(50)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "titulo",
+          "type": "VARCHAR(500)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "data_lancamento",
+          "type": "DATE",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 4,
+          "name": "ano_lancamento",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 5,
+          "name": "duracao_minutos",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 6,
+          "name": "idioma_original",
+          "type": "VARCHAR(10)",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 7,
+          "name": "status_filme",
+          "type": "VARCHAR(50)",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 8,
+          "name": "sinopse",
+          "type": "VARCHAR(4000)",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 9,
+          "name": "url_poster",
+          "type": "VARCHAR(2048)",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 10,
+          "name": "url_backdrop",
+          "type": "VARCHAR(2048)",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "ix_dim_movies_titulo",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0
+        },
+        {
+          "seq": 1,
+          "name": "ix_dim_movies_id_filme",
+          "unique": 1,
+          "origin": "c",
+          "partial": 0
+        },
+        {
+          "seq": 2,
+          "name": "ix_dim_movies_ano_lancamento",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0
+        },
+        {
+          "seq": 3,
+          "name": "sqlite_autoindex_dim_movies_1",
+          "unique": 1,
+          "origin": "pk",
+          "partial": 0
+        }
+      ]
+    },
+    "dim_people": {
+      "row_count": 424656,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "sk_person_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "nome_pessoa",
+          "type": "VARCHAR(255)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "tipo_pessoa",
+          "type": "VARCHAR(20)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "ix_dim_people_nome_pessoa",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0
+        },
+        {
+          "seq": 1,
+          "name": "sqlite_autoindex_dim_people_2",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0
+        },
+        {
+          "seq": 2,
+          "name": "sqlite_autoindex_dim_people_1",
+          "unique": 1,
+          "origin": "pk",
+          "partial": 0
+        }
+      ]
+    },
+    "dim_reviews": {
+      "row_count": 40267,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "sk_review_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "sk_movie_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "qtd_avaliacoes_usuarios",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "nota_media_usuarios",
+          "type": "DOUBLE",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "dim_movies",
+          "from": "sk_movie_id",
+          "to": "sk_movie_id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "sqlite_autoindex_dim_reviews_2",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0
+        },
+        {
+          "seq": 1,
+          "name": "sqlite_autoindex_dim_reviews_1",
+          "unique": 1,
+          "origin": "pk",
+          "partial": 0
+        }
+      ]
+    },
+    "fact_movies_performance": {
+      "row_count": 95645,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "sk_movie_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "orcamento_usd",
+          "type": "NUMERIC(18, 2)",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "receita_usd",
+          "type": "NUMERIC(18, 2)",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "lucro_usd",
+          "type": "NUMERIC(18, 2)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 4,
+          "name": "orcamento_brl",
+          "type": "NUMERIC(18, 2)",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 5,
+          "name": "receita_brl",
+          "type": "NUMERIC(18, 2)",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 6,
+          "name": "lucro_brl",
+          "type": "NUMERIC(18, 2)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 7,
+          "name": "popularidade",
+          "type": "DOUBLE",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 8,
+          "name": "nota_tmdb",
+          "type": "DOUBLE",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 9,
+          "name": "qtd_tmdb",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 10,
+          "name": "nota_imdb",
+          "type": "DOUBLE",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 11,
+          "name": "qtd_imdb",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "dim_movies",
+          "from": "sk_movie_id",
+          "to": "sk_movie_id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "sqlite_autoindex_fact_movies_performance_1",
+          "unique": 1,
+          "origin": "pk",
+          "partial": 0
+        }
+      ]
+    },
+    "movie_reviews": {
+      "row_count": 43666,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "sk_movie_review_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "sk_movie_id",
+          "type": "VARCHAR(64)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "name",
+          "type": "VARCHAR(120)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 4,
+          "name": "rating",
+          "type": "DOUBLE",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 5,
+          "name": "text",
+          "type": "VARCHAR(4000)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 6,
+          "name": "created_at",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": "CURRENT_TIMESTAMP",
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "dim_movies",
+          "from": "sk_movie_id",
+          "to": "sk_movie_id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "ix_movie_reviews_sk_movie_review_id",
+          "unique": 1,
+          "origin": "c",
+          "partial": 0
+        },
+        {
+          "seq": 1,
+          "name": "ix_movie_reviews_sk_movie_id",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0
+        }
+      ]
+    }
+  },
+  "checks": {
+    "financas": [
+      {
+        "filmes": 95645,
+        "receita_nula": 92272,
+        "orcamento_nulo": 87719,
+        "receita_zero": 0,
+        "orcamento_zero": 0,
+        "valores_negativos": 0,
+        "ambos_positivos": 1630,
+        "receita_sem_orcamento": 1743,
+        "ambos_nulos": 85976,
+        "lucro_usd_divergente": 0,
+        "maior_diferenca_lucro_brl": 0.01000000536441803,
+        "cambio_receita_min": 3.0503999996653737,
+        "cambio_receita_max": 5.8391
+      }
+    ],
+    "notas": [
+      {
+        "tmdb_min": 0.0,
+        "tmdb_max": 10.0,
+        "tmdb_nula": 0,
+        "tmdb_zero": 36185,
+        "tmdb_com_votos": 54871,
+        "tmdb_zero_com_votos": 142,
+        "imdb_min": 0.0,
+        "imdb_max": 10.0,
+        "imdb_nula": 12674,
+        "imdb_zero": 2,
+        "imdb_com_votos": 76425,
+        "imdb_nula_com_votos": 8354,
+        "popularidade_min": 0.0,
+        "popularidade_max": 2994.357,
+        "popularidade_nula": 3615
+      }
+    ],
+    "datas": [
+      {
+        "data_min": "2016-01-01",
+        "data_max": "2029-10-13",
+        "data_nula": 0,
+        "ano_nulo": 0,
+        "ano_divergente": 0,
+        "data_invalida": 0
+      }
+    ],
+    "status": [
+      {
+        "status_filme": "Em Produção",
+        "quantidade": 598
+      },
+      {
+        "status_filme": "Lançado",
+        "quantidade": 94304
+      },
+      {
+        "status_filme": "Planejado",
+        "quantidade": 50
+      },
+      {
+        "status_filme": "Pós-Produção",
+        "quantidade": 693
+      }
+    ],
+    "pessoas": [
+      {
+        "tipo_pessoa": "Ator",
+        "quantidade": 273400
+      },
+      {
+        "tipo_pessoa": "Diretor",
+        "quantidade": 65200
+      },
+      {
+        "tipo_pessoa": "Roteirista",
+        "quantidade": 86056
+      }
+    ],
+    "generos": [
+      {
+        "nome_genero": "Action"
+      },
+      {
+        "nome_genero": "Adventure"
+      },
+      {
+        "nome_genero": "Animation"
+      },
+      {
+        "nome_genero": "Comedy"
+      },
+      {
+        "nome_genero": "Crime"
+      },
+      {
+        "nome_genero": "Documentary"
+      },
+      {
+        "nome_genero": "Drama"
+      },
+      {
+        "nome_genero": "Family"
+      },
+      {
+        "nome_genero": "Fantasy"
+      },
+      {
+        "nome_genero": "History"
+      },
+      {
+        "nome_genero": "Horror"
+      },
+      {
+        "nome_genero": "Music"
+      },
+      {
+        "nome_genero": "Mystery"
+      },
+      {
+        "nome_genero": "Romance"
+      },
+      {
+        "nome_genero": "Science Fiction"
+      },
+      {
+        "nome_genero": "Thriller"
+      },
+      {
+        "nome_genero": "Tv Movie"
+      },
+      {
+        "nome_genero": "War"
+      },
+      {
+        "nome_genero": "Western"
+      }
+    ],
+    "cobertura": [
+      {
+        "filmes": 95645,
+        "sem_genero": 20037,
+        "sem_produtora": 36179,
+        "sem_pessoas": 1125
+      }
+    ],
+    "avaliacoes": [
+      {
+        "filmes": 40267,
+        "nota_min": 0.0,
+        "nota_max": 10.0,
+        "nota_nula": 0,
+        "qtd_min": 1,
+        "qtd_max": 13
+      }
+    ],
+    "consistencia_avaliacoes": [
+      {
+        "filmes_em_ambas": 40267,
+        "contagem_divergente": 0,
+        "media_divergente": 0,
+        "agregados_sem_reviews": 0,
+        "reviews_sem_agregado": 0
+      }
+    ],
+    "multiplos_papeis": [
+      {
+        "nomes_com_multiplos_papeis": 48210
+      }
+    ],
+    "lancados_futuros": [
+      {
+        "quantidade": 0
+      }
+    ],
+    "foreign_key_violations": []
+  }
+}
