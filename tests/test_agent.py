@@ -105,6 +105,50 @@ class AgentTests(unittest.TestCase):
         self.assertEqual(result["error"]["code"], "no_query_result")
         self.assertNotIn("answer", result)
 
+    def test_tokens_include_sql_and_answer_without_recounting_graph_states(self):
+        query = sql_call("SELECT COUNT(*) AS filmes FROM dim_movies")
+        query.usage_metadata = {"input_tokens": 100, "output_tokens": 20, "total_tokens": 120}
+        answer = AIMessage(
+            content="O catálogo contém 2 filmes.",
+            usage_metadata={"input_tokens": 150, "output_tokens": 10, "total_tokens": 160},
+        )
+        result = ask_question(
+            self.settings, "Quantos filmes?", model=ScriptedModel(responses=[query, answer])
+        )
+        self.assertTrue(result["ok"])
+        self.assertEqual(
+            result["token_usage"],
+            {
+                "input_tokens": 250,
+                "output_tokens": 30,
+                "total_tokens": 280,
+                "calls_with_usage": 2,
+                "complete": True,
+            },
+        )
+
+    def test_tokens_survive_provider_failure_and_are_marked_partial(self):
+        query = sql_call("SELECT COUNT(*) FROM dim_movies")
+        query.usage_metadata = {"input_tokens": 100, "output_tokens": 20, "total_tokens": 120}
+        result = ask_question(
+            self.settings,
+            "Quantos filmes?",
+            model=ScriptedModel(responses=[query], fail_on_call=2),
+        )
+        self.assertEqual(result["error"]["code"], "connection_error")
+        self.assertEqual(result["token_usage"]["total_tokens"], 120)
+        self.assertEqual(result["token_usage"]["calls_with_usage"], 1)
+        self.assertFalse(result["token_usage"]["complete"])
+
+    def test_missing_usage_is_unknown_not_zero(self):
+        result = ask_question(
+            self.settings,
+            "Quantos filmes?",
+            model=ScriptedModel(responses=[AIMessage(content="2 filmes")]),
+        )
+        self.assertIsNone(result["token_usage"]["total_tokens"])
+        self.assertFalse(result["token_usage"]["complete"])
+
     def test_write_attempt_cannot_ground_answer(self):
         before = self.db.read_bytes()
         model = ScriptedModel(

@@ -27,13 +27,31 @@ from cinedata.tools import create_sql_tool
 
 
 class CallCounter(BaseCallbackHandler):
-    """Conta tentativas de chamada sem registrar prompts, resultados ou credenciais."""
+    """Conta chamadas e tokens reportados, sem guardar prompts ou credenciais."""
 
     def __init__(self):
         self.calls = 0
+        self.usages: list[dict[str, int]] = []
 
     def on_chat_model_start(self, serialized, messages, **kwargs):
         self.calls += 1
+
+    def on_llm_end(self, response, **kwargs):
+        # Uma geração por chamada; estados do grafo repetem mensagens anteriores.
+        message = response.generations[0][0].message
+        usage = getattr(message, "usage_metadata", None)
+        fields = ("input_tokens", "output_tokens", "total_tokens")
+        if usage and all(type(usage.get(field)) is int for field in fields):
+            self.usages.append({field: usage[field] for field in fields})
+
+    def token_usage(self) -> dict[str, Any]:
+        return {
+            field: sum(usage[field] for usage in self.usages) if self.usages else None
+            for field in ("input_tokens", "output_tokens", "total_tokens")
+        } | {
+            "calls_with_usage": len(self.usages),
+            "complete": len(self.usages) == self.calls,
+        }
 
 
 @wrap_model_call
@@ -98,6 +116,7 @@ def ask_question(
             "error": {"code": code, "message": message},
             "queries": trace,
             "model_calls": counter.calls,
+            "token_usage": counter.token_usage(),
         }
 
     if not isinstance(question, str) or not question.strip() or len(question) > 4_000:
@@ -153,7 +172,12 @@ def ask_question(
                 if entry["id"] in results:
                     entry["result"] = results[entry["id"]]
         if not any(entry.get("result", {}).get("ok") for entry in trace):
-            failed = failure("no_query_result", "O modelo não obteve uma consulta válida no banco.")
+            failed = failure(
+                "no_query_result",
+                "O modelo não obteve uma consulta válida no banco. "
+                "Confira o SQL com --show-sql e tente reformular a pergunta ou configurar "
+                "um modelo compatível com ferramentas. Nenhuma retentativa automática foi feita.",
+            )
             if final_messages and isinstance(final_messages[-1], AIMessage):
                 final = final_messages[-1]
                 failed["diagnostics"] = {
@@ -179,6 +203,7 @@ def ask_question(
             "answer": answer,
             "queries": trace,
             "model_calls": counter.calls,
+            "token_usage": counter.token_usage(),
             "model": settings.model,
             "actual_models": actual_models,
             "reference_date": reference_date.isoformat(),

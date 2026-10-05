@@ -124,6 +124,15 @@ def main() -> int:
                 for entry in result["queries"]:
                     print(f"\nSQL: {entry['sql']}")
             print(f"\nChamadas ao modelo: {result['model_calls']}")
+            usage = result["token_usage"]
+            if usage["total_tokens"] is not None:
+                qualifier = "" if usage["complete"] else " (registro parcial)"
+                print(
+                    f"Tokens reportados{qualifier}: entrada={usage['input_tokens']}, "
+                    f"saída={usage['output_tokens']}, total={usage['total_tokens']}"
+                )
+            elif result["model_calls"]:
+                print("Tokens: consumo não informado pelo provedor.")
         return 0 if result["ok"] else 1
     try:
         result = execute_query(

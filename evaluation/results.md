@@ -29,9 +29,11 @@ a validação com a base fornecida foi feita localmente.
 | [recheck.json](recheck.json) | 6 | 3 | 0 | 3 | 13 |
 | [final-check.json](final-check.json) | 3 | 1 | 0 | 2 | 5 |
 | [delivery-check.json](delivery-check.json) | 2 | 1 | 0 | 1 | 4 |
+| [ratings-check.json](ratings-check.json) | 1 | 1 | 0 | 0 | 2 |
 
-Total registrado nesses relatórios: 51 chamadas ao modelo. As primeiras 47 foram
-feitas com a conta anterior; as quatro de `delivery-check.json`, com a nova conta.
+Total registrado nesses relatórios: 53 chamadas ao modelo. As primeiras 47 foram
+feitas com a conta anterior; as seis de `delivery-check.json` e `ratings-check.json`,
+com a nova conta.
 Esses totais não são um contador diário da conta nem incluem uso fora dos relatórios.
 O router `openrouter/free` selecionou
 modelos diferentes entre chamadas. Os relatórios preservam SQL, resultados,
@@ -43,9 +45,11 @@ obrigatória e esforço de raciocínio baixo; `final-check.json` usou 8.192 toke
 escolha `required` e orçamento de duas chamadas por pergunta. A configuração atual
 usa 8.192 tokens, ferramenta obrigatória inicialmente e três chamadas por pergunta.
 `delivery-check.json` usou essa configuração, com orçamento global de seis chamadas.
+`ratings-check.json` usou o modelo específico `nvidia/nemotron-3.5-lightning:free`,
+com orçamento global de três chamadas. O modelo padrão continua `openrouter/free`.
 Os resultados não representam uma execução integral dessa configuração atual.
 
-Em conjunto, 13 das 14 perguntas tiveram uma resposta concluída com pelo menos uma
+Em conjunto, as 14 perguntas tiveram uma resposta concluída com pelo menos uma
 consulta coincidente com a referência. Isso é um resultado acumulado de execuções
 diferentes, não uma taxa de acerto de uma única execução.
 
@@ -64,17 +68,32 @@ diferentes, não uma taxa de acerto de uma única execução.
 | Gênero com maior margem média | `recheck.json` |
 | Lucro médio por gênero | `delivery-check.json` |
 | Divergência usuários/IMDb | `recheck.json` |
+| Filmes mais avaliados | `ratings-check.json` |
 
-**Filmes mais avaliados** permanece sem resposta concluída e validada. Em execuções
+**Filmes mais avaliados** foi aprovado em `ratings-check.json`. Em execuções
 anteriores, o modelo inventou uma coluna `titulo` em `dim_reviews`, corrigiu o join,
 mas atingiu o orçamento, e também deixou de aplicar desempates determinísticos.
-Na verificação mais recente, `nvidia/nemotron-3-ultra-550b-a55b:free` encerrou sem
+Em `delivery-check.json`, `nvidia/nemotron-3-ultra-550b-a55b:free` encerrou sem
 chamar a ferramenta, apesar de `tool_choice=required`. O retorno foi rejeitado com
 `no_query_result`. Essa chamada reportou 2.933 tokens de entrada e 273 de saída,
 totalizando 3.206; esse valor não representa os tokens de toda a verificação.
 
 Lucro médio por gênero, que anteriormente também falhava sem consulta, foi aprovado
-na verificação mais recente. Não foram feitas novas tentativas para o caso restante.
+em `delivery-check.json`. Para filmes mais avaliados, o modelo específico escolhido
+foi o que acertou lucro médio por gênero nessa execução. A nova verificação consumiu
+duas chamadas, com 6.890 tokens de entrada, 1.199 de saída e 8.089 no total,
+reportados pelo provedor para ambas as chamadas. A tentativa inicial sem acesso à
+rede falhou localmente; os números desse relatório correspondem à execução com rede.
+
+Os dados do ranking coincidiram com a referência. O SQL gerado filtrou quantidade
+não nula, enquanto a referência exige quantidade positiva. Isso não alterou o top
+10 desta base, mas pode produzir diferenças em uma base com menos filmes avaliados.
+A aprovação verifica o resultado nesta base, não equivalência para todos os dados
+possíveis nem todas as afirmações da explicação textual.
+
+Após a inclusão do registro de tokens, os 32 testes locais passaram, assim como
+Ruff, verificação de formatação e dependências. O registro soma os valores
+reportados por chamada e indica se a cobertura é parcial, inclusive em falhas.
 
 ## Correções e cuidados
 

@@ -191,6 +191,13 @@ português. `--show-sql` apresenta as consultas propostas; `--json` inclui respo
 consultas, resultados, data de referência e número de chamadas ao modelo. Uma consulta
 proposta pode falhar; confira `result.ok` no JSON para saber se foi executada com sucesso.
 
+O campo `token_usage` registra tokens de entrada, saída e total reportados pelo
+provedor, somados entre as chamadas da pergunta. `calls_with_usage` informa quantas
+chamadas forneceram esses valores; `complete=false` indica um registro parcial.
+Valores `null` significam consumo desconhecido, não zero. A CLI também mostra o
+consumo reportado, inclusive quando a pergunta falha. Esses valores não são uma
+estimativa de custo nem um contador diário da conta.
+
 Cada pergunta é independente, sem memória de conversa. Por padrão a data de referência
 é a data atual em São Paulo; `--reference-date` torna os períodos reproduzíveis.
 O orçamento é de até três chamadas ao modelo e três à ferramenta por pergunta.
@@ -262,6 +269,18 @@ uma deve coincidir com a referência; consultas auxiliares não substituem essa 
 Aliases não são usados para decidir equivalência. Valores numéricos têm tolerância
 absoluta de 0,011 e relativa de 1e-12 para acomodar apresentação com duas casas.
 Resultados truncados ou abreviados não são aprovados.
+
+O caso de filmes mais avaliados foi aprovado com
+`nvidia/nemotron-3.5-lightning:free`, em uma verificação de duas chamadas.
+Para reproduzir esse recorte sem alterar seu `.env`, em Linux/macOS:
+
+```bash
+OPENROUTER_MODEL=nvidia/nemotron-3.5-lightning:free cinedata evaluate --live --case avaliacoes --max-calls 3 --output evaluation/ratings-sample.json
+```
+
+A [página do modelo](https://openrouter.ai/nvidia/nemotron-3.5-lightning:free)
+informa suporte a ferramentas. Uma aprovação isolada não garante disponibilidade
+ou acerto consistente; o modelo padrão do projeto continua `openrouter/free`.
 
 O relatório registra a pergunta, o SQL de referência, as consultas do agente,
 as respostas textuais, os modelos reportados e o consumo de chamadas. `passed`

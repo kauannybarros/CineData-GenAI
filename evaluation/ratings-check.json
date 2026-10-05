@@ -1,0 +1,155 @@
+{
+  "mode": "live",
+  "reference_date": "2026-10-04",
+  "database_sha256": "410f5beef6ab9fb34b9044d5dd191f56f3f0dc30a56e6432386ecef0d977b012",
+  "model": "nvidia/nemotron-3.5-lightning:free",
+  "max_model_calls_per_question": 3,
+  "comparison_version": 2,
+  "call_budget": 3,
+  "model_calls": 2,
+  "cases": [
+    {
+      "id": "avaliacoes",
+      "category": "usuarios",
+      "question": "Quais os 10 filmes mais avaliados pelos usuários locais? Mostre a quantidade de avaliações.",
+      "reference_sql": "SELECT m.titulo, r.qtd_avaliacoes_usuarios FROM dim_movies m\n        JOIN dim_reviews r USING(sk_movie_id) WHERE r.qtd_avaliacoes_usuarios>0\n        ORDER BY r.qtd_avaliacoes_usuarios DESC, m.titulo, m.sk_movie_id LIMIT 10",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "titulo",
+          "qtd_avaliacoes_usuarios"
+        ],
+        "rows": [
+          [
+            "Die Hart 2: Die Harter",
+            13
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            12
+          ],
+          [
+            "Die Hart: Die Harter",
+            11
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            10
+          ],
+          [
+            "Die Hart: Die Harter",
+            10
+          ],
+          [
+            "Die Hart: Die Harter",
+            10
+          ],
+          [
+            "Die Hart: Die Harter",
+            10
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            9
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            9
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            9
+          ]
+        ],
+        "row_count": 10,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.111,
+      "agent": {
+        "ok": true,
+        "answer": "**Top 10 filmes mais avaliados pelos usuários locais**\n\n| titulo | qtd_avaliacoes_usuarios |\n|--------|--------------------------|\n| Die Hart 2: Die Harter | 13 |\n| Die Hart 2: Die Harter | 12 |\n| Die Hart: Die Harter | 11 |\n| Die Hart 2: Die Harter | 10 |\n| Die Hart: Die Harter | 10 |\n| Die Hart: Die Harter | 10 |\n| Die Hart: Die Harter | 10 |\n| Die Hart 2: Die Harter | 9 |\n| Die Hart 2: Die Harter | 9 |\n| Die Hart 2: Die Harter | 9 |\n\n*Fonte:* consulta sobre `dim_movies` ↔ `dim_reviews` (junção por `sk_movie_id`), ordenada pela quantidade de avaliações de usuários em ordem decrescente, com desempate por título e chave do filme. Apenas linhas com `qtd_avaliacoes_usuários` não nulo foram consideradas.  \n\nO resultado traz 10 linhas (o limite solicitado) e mostra a quantidade de avaliações locais que cada filme recebeu. Caso haja necessidade de filtrar por período ou outros critérios, basta adicionar as cláusulas `WHERE` adequadas.",
+        "queries": [
+          {
+            "id": "call-2208ea93-6d29-4dbc-b075-addd3f808c80",
+            "sql": "SELECT m.titulo AS titulo, r.qtd_avaliacoes_usuarios AS qtd_avaliacoes_usuarios FROM dim_movies m JOIN dim_reviews r USING (sk_movie_id) WHERE r.qtd_avaliacoes_usuarios IS NOT NULL ORDER BY r.qtd_avaliacoes_usuarios DESC, m.titulo ASC, m.sk_movie_id ASC LIMIT 10;",
+            "result": {
+              "ok": true,
+              "columns": [
+                "titulo",
+                "qtd_avaliacoes_usuarios"
+              ],
+              "rows": [
+                [
+                  "Die Hart 2: Die Harter",
+                  13
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  12
+                ],
+                [
+                  "Die Hart: Die Harter",
+                  11
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  10
+                ],
+                [
+                  "Die Hart: Die Harter",
+                  10
+                ],
+                [
+                  "Die Hart: Die Harter",
+                  10
+                ],
+                [
+                  "Die Hart: Die Harter",
+                  10
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  9
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  9
+                ],
+                [
+                  "Die Hart 2: Die Harter",
+                  9
+                ]
+              ],
+              "row_count": 10,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 2,
+        "token_usage": {
+          "input_tokens": 6890,
+          "output_tokens": 1199,
+          "total_tokens": 8089,
+          "calls_with_usage": 2,
+          "complete": true
+        },
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "actual_models": [
+          "nvidia/nemotron-3.5-lightning:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 15.315,
+      "status": "passed",
+      "reason": "Linhas e valores coincidem com a referência.",
+      "matched_query_id": "call-2208ea93-6d29-4dbc-b075-addd3f808c80"
+    }
+  ],
+  "summary": {
+    "passed": 1
+  }
+}
