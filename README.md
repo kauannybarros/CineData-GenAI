@@ -33,6 +33,8 @@ modelos diferentes entre chamadas.
 Execute os comandos na raiz do repositório, em Linux/macOS:
 
 ```bash
+git clone https://github.com/kauannybarros/CineData-GenAI.git
+cd CineData-GenAI
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -c requirements.lock -e '.[dev]'
@@ -41,6 +43,8 @@ cp .env.example .env
 
 Se o `.env` já existir, mantenha suas configurações em vez de copiá-lo novamente.
 No Windows, ative o ambiente com `.venv\Scripts\Activate.ps1`.
+O repositório é privado: a clonagem exige uma conta com acesso. Use Python 3.12
+para reproduzir o ambiente validado.
 
 1. Obtenha `cinerocket.db` na pasta compartilhada da atividade. Nesta máquina ele já
    está em `cinerocket-db/cinerocket (1).db`. Em outra máquina, coloque-o nesse caminho
@@ -63,8 +67,8 @@ controle de migrações, totalizando 11 tabelas.
 Ela não envia requisições à API, não imprime a chave e não valida a autenticação.
 Também funciona com `python -m cinedata.cli check`.
 
-O banco e o tutorial original permanecem nos caminhos fornecidos. O banco não é
-versionado; seu download precisa ser feito separadamente por quem clonar o projeto.
+O banco e o tutorial original são arquivos locais fornecidos pela atividade e não
+são versionados. O banco precisa ser obtido separadamente por quem clonar o projeto.
 
 ## Qualidade e dependências
 
@@ -79,6 +83,9 @@ Os testes usam banco temporário e modelo simulado: cobrem consultas, joins, CTE
 funções de janela, bloqueios de escrita, truncamento, interrupção, o ciclo completo
 do agente, correção de SQL e limites de chamadas. Não dependem de chave OpenRouter,
 não enviam requisições e não alteram o banco da atividade.
+
+O workflow [quality.yml](.github/workflows/quality.yml) executa essas verificações
+em Python 3.12 a cada push e pull request, sem banco da atividade ou chave de API.
 
 `pyproject.toml` declara as dependências; `requirements.lock` registra as versões
 instaladas e verificadas em Python 3.12.3. Para atualizar o conjunto, use um ambiente
@@ -107,8 +114,8 @@ scripts/profile_database.py  Reprodução da inspeção em modo somente leitura
 .env.example          Configuração de exemplo, sem segredos
 pyproject.toml        Metadados, dependências e configuração do Ruff
 requirements.lock     Versões instaladas
+.github/workflows/quality.yml  Verificações automáticas de qualidade
 cinerocket-db/         Banco local, ignorado pelo Git
-tutorial-openrouter.html  Tutorial fornecido pela atividade
 ```
 
 ## Consultas locais e ferramenta SQL

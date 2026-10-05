@@ -13,6 +13,14 @@ gêneros sem filmes e associações a várias produtoras.
 - [references.json](references.json): resultados esperados das 14 perguntas.
 - `python -m unittest discover -s tests -v`: testes sem consumo da API.
 
+Em 04/10/2026, a instalação foi reproduzida em uma cópia isolada do projeto,
+com ambiente virtual novo em Python 3.12.3, dependências de `requirements.lock`
+e `.env.example` sem chave. Os 29 testes passaram, assim como análise e formatação
+do Ruff e `pip check`. A CLI confirmou as dez tabelas analíticas em modo somente
+leitura e contou 95.645 filmes na base fornecida. Essa validação local não consumiu
+chamadas ao modelo. O workflow do GitHub executa as verificações de código e testes;
+a validação com a base fornecida foi feita localmente.
+
 ## Comparações com o OpenRouter
 
 | Relatório | Casos | Dados aprovados | Divergências | Erros do agente | Chamadas |
@@ -20,8 +28,12 @@ gêneros sem filmes e associações a várias produtoras.
 | [live.json](live.json) | 14 | 8 | 4 | 2 | 29 |
 | [recheck.json](recheck.json) | 6 | 3 | 0 | 3 | 13 |
 | [final-check.json](final-check.json) | 3 | 1 | 0 | 2 | 5 |
+| [delivery-check.json](delivery-check.json) | 2 | 1 | 0 | 1 | 4 |
 
-Total registrado: 47 chamadas ao modelo. O router `openrouter/free` selecionou
+Total registrado nesses relatórios: 51 chamadas ao modelo. As primeiras 47 foram
+feitas com a conta anterior; as quatro de `delivery-check.json`, com a nova conta.
+Esses totais não são um contador diário da conta nem incluem uso fora dos relatórios.
+O router `openrouter/free` selecionou
 modelos diferentes entre chamadas. Os relatórios preservam SQL, resultados,
 respostas textuais, modelos reportados e erros; não contêm a chave da API.
 
@@ -30,9 +42,10 @@ automática de ferramenta; `recheck.json` usou 4.096 tokens, ferramenta específ
 obrigatória e esforço de raciocínio baixo; `final-check.json` usou 8.192 tokens,
 escolha `required` e orçamento de duas chamadas por pergunta. A configuração atual
 usa 8.192 tokens, ferramenta obrigatória inicialmente e três chamadas por pergunta.
+`delivery-check.json` usou essa configuração, com orçamento global de seis chamadas.
 Os resultados não representam uma execução integral dessa configuração atual.
 
-Em conjunto, 12 das 14 perguntas tiveram uma resposta concluída com pelo menos uma
+Em conjunto, 13 das 14 perguntas tiveram uma resposta concluída com pelo menos uma
 consulta coincidente com a referência. Isso é um resultado acumulado de execuções
 diferentes, não uma taxa de acerto de uma única execução.
 
@@ -49,16 +62,19 @@ diferentes, não uma taxa de acerto de uma única execução.
 | Quantidade por gênero | `live.json` |
 | Produtora com maior lucro | `live.json` |
 | Gênero com maior margem média | `recheck.json` |
+| Lucro médio por gênero | `delivery-check.json` |
 | Divergência usuários/IMDb | `recheck.json` |
 
-As outras duas perguntas não tiveram uma resposta concluída e validada:
+**Filmes mais avaliados** permanece sem resposta concluída e validada. Em execuções
+anteriores, o modelo inventou uma coluna `titulo` em `dim_reviews`, corrigiu o join,
+mas atingiu o orçamento, e também deixou de aplicar desempates determinísticos.
+Na verificação mais recente, `nvidia/nemotron-3-ultra-550b-a55b:free` encerrou sem
+chamar a ferramenta, apesar de `tool_choice=required`. O retorno foi rejeitado com
+`no_query_result`. Essa chamada reportou 2.933 tokens de entrada e 273 de saída,
+totalizando 3.206; esse valor não representa os tokens de toda a verificação.
 
-- **Lucro médio por gênero:** o modelo encerrou sem uma chamada de ferramenta.
-  Uma execução também consumiu quase todo o limite de saída em raciocínio.
-  O executor retorna `no_query_result`, evitando apresentar uma análise sem evidência.
-- **Filmes mais avaliados:** o modelo inventou uma coluna `titulo` em `dim_reviews`,
-  depois corrigiu o join, mas atingiu o orçamento antes de concluir a resposta.
-  Também houve consultas sem o desempate determinístico solicitado.
+Lucro médio por gênero, que anteriormente também falhava sem consulta, foi aprovado
+na verificação mais recente. Não foram feitas novas tentativas para o caso restante.
 
 ## Correções e cuidados
 

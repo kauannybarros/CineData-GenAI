@@ -1,0 +1,400 @@
+{
+  "mode": "live",
+  "reference_date": "2026-10-04",
+  "database_sha256": "410f5beef6ab9fb34b9044d5dd191f56f3f0dc30a56e6432386ecef0d977b012",
+  "model": "openrouter/free",
+  "max_model_calls_per_question": 3,
+  "comparison_version": 2,
+  "call_budget": 6,
+  "model_calls": 4,
+  "cases": [
+    {
+      "id": "lucro_genero",
+      "category": "financas",
+      "question": "Qual o lucro médio em reais por gênero, considerando apenas receita informada? Mostre a quantidade de filmes e quantos não têm orçamento. Ordene pelo gênero.",
+      "reference_sql": "SELECT g.nome_genero, AVG(f.lucro_brl) AS lucro_medio_brl,\n        COUNT(*) AS filmes, SUM(f.orcamento_brl IS NULL) AS sem_orcamento\n        FROM dim_genres g JOIN bridge_movie_genre b USING(sk_genre_id)\n        JOIN fact_movies_performance f USING(sk_movie_id) WHERE f.receita_brl IS NOT NULL\n        GROUP BY g.sk_genre_id ORDER BY g.nome_genero, g.sk_genre_id",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "nome_genero",
+          "lucro_medio_brl",
+          "filmes",
+          "sem_orcamento"
+        ],
+        "rows": [
+          [
+            "Action",
+            343223021.8728956,
+            594,
+            215
+          ],
+          [
+            "Adventure",
+            514678791.3929771,
+            393,
+            147
+          ],
+          [
+            "Animation",
+            303517897.374728,
+            239,
+            142
+          ],
+          [
+            "Comedy",
+            143589472.55178353,
+            813,
+            410
+          ],
+          [
+            "Crime",
+            93988989.26714286,
+            294,
+            128
+          ],
+          [
+            "Documentary",
+            5028959.4421568625,
+            153,
+            113
+          ],
+          [
+            "Drama",
+            84161852.72059368,
+            1297,
+            695
+          ],
+          [
+            "Family",
+            324648758.3319318,
+            264,
+            122
+          ],
+          [
+            "Fantasy",
+            335448446.35188234,
+            255,
+            121
+          ],
+          [
+            "History",
+            146826836.6097661,
+            171,
+            75
+          ],
+          [
+            "Horror",
+            92805277.19780679,
+            383,
+            215
+          ],
+          [
+            "Music",
+            111985444.2848,
+            100,
+            55
+          ],
+          [
+            "Mystery",
+            119462433.48792683,
+            246,
+            119
+          ],
+          [
+            "Romance",
+            98645875.98897436,
+            312,
+            160
+          ],
+          [
+            "Science Fiction",
+            520783718.3286344,
+            227,
+            93
+          ],
+          [
+            "Thriller",
+            92872345.46579455,
+            623,
+            302
+          ],
+          [
+            "Tv Movie",
+            9228474.485,
+            10,
+            7
+          ],
+          [
+            "War",
+            194016703.28296703,
+            91,
+            34
+          ],
+          [
+            "Western",
+            -3581373.251999998,
+            20,
+            9
+          ]
+        ],
+        "row_count": 19,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.322,
+      "agent": {
+        "ok": true,
+        "answer": "**Lucro médio por gênero (apenas filmes com receita informada)**  \n\nA consulta partiu da tabela `fact_movies_performance`, manteve‑se uma linha por `sk_movie_id` e depois fez um único `JOIN` com `bridge_movie_genre` + `dim_genres`.  \nFiltro aplicado: `receita_brl IS NOT NULL`.  \nOs valores de lucro estão em **R$** (BRL).  \n\n| Gênero (nome_genero) | lucro_medio_brl | filmes* | sem_orcamento** |\n|----------------------|-----------------|---------|-----------------|\n| Action               | 343 223 021,87  | 594     | 215 |\n| Adventure            | 514 678 791,39  | 393     | 147 |\n| Animation            | 303 517 897,37  | 239     | 142 |\n| Comedy               | 143 589 472,55  | 813     | 410 |\n| Crime                | 93 988 989,27   | 294     | 128 |\n| Documentary          | 5 028 959,44    | 153     | 113 |\n| Drama                | 84 161 852,72   | 1 297   | 695 |\n| Family               | 324 648 758,33  | 264     | 122 |\n| Fantasy              | 335 448 446,35  | 255     | 121 |\n| History              | 146 826 836,61  | 171     | 75 |\n| Horror               | 92 805 277,20   | 383     | 215 |\n| Music                | 111 985 444,28  | 100     | 55 |\n| Mystery              | 119 462 433,49  | 246     | 119 |\n| Romance              | 98 645 875,99   | 312     | 160 |\n| Science Fiction      | 520 783 718,33  | 227     | 93 |\n| Thriller             | 92 872 345,47   | 623     | 302 |\n| Tv Movie             | 9 228 474,49    | 10      | 7 |\n| War                  | 194 016 703,28  | 91      | 34 |\n| Western              | – 3 581 373,25  | 20      | 9 |\n\n\\* **filmes** = número de filmes (distintos por `sk_movie_id`) do gênero que têm receita informada.  \n\\** **sem_orcamento** = quantos desses filmes têm `orcamento_brl` NULL (orçamento não informado).  \n\n**Observações**\n\n* A média (`lucro_medio_brl`) foi calculada sobre o lucro (`lucro_brl`) de cada filme que tem receita informada; se um filme pertencer a mais de um gênero, ele é contado separadamente para cada gênero.  \n* A coluna **sem_orcamento** conta filmes cujo orçamento não foi registrado (NULL), ainda que tenham receita.  \n* O gênero **Western** apresenta lucro médio negativo, o que indica prejuízo líquido nesses casos.  \n* Total de gêneros retornados: **19** (todos os gêneros presentes no catálogo que atendem ao filtro).  \n\nEsses resultados atendem ao pedido de colunas `nome_genero, lucro_medio_brl, filmes, sem_orcamento`, ordenados alfabeticamente pelo gênero.",
+        "queries": [
+          {
+            "id": "call-ecf50c36-a46f-4776-a9c1-3c729746c6c1",
+            "sql": "WITH performance AS ( SELECT sk_movie_id, lucro_brl, orcamento_brl, receita_brl FROM fact_movies_performance WHERE receita_brl IS NOT NULL ), genre_join AS ( SELECT g.sk_genre_id, d.nome_genero, p.lucro_brl, p.orcamento_brl FROM performance p JOIN bridge_movie_genre g ON p.sk_movie_id = g.sk_movie_id JOIN dim_genres d ON g.sk_genre_id = d.sk_genre_id ) SELECT nome_genero, AVG(lucro_brl) AS lucro_medio_brl, COUNT(DISTINCT sk_movie_id) AS filmes, COUNT(DISTINCT CASE WHEN orcamento_brl IS NULL THEN sk_movie_id END) AS sem_orcamento FROM genre_join GROUP BY nome_genero ORDER BY nome_genero;",
+            "result": {
+              "ok": false,
+              "error": {
+                "code": "sqlite_error",
+                "message": "no such column: sk_movie_id"
+              }
+            }
+          },
+          {
+            "id": "call-51cbe21e-22b1-45b8-b5be-3d9594823373",
+            "sql": "WITH performance AS ( SELECT sk_movie_id, lucro_brl, orcamento_brl, receita_brl FROM fact_movies_performance WHERE receita_brl IS NOT NULL ), genre_join AS ( SELECT g.sk_genre_id, d.nome_genero, p.sk_movie_id, p.lucro_brl, p.orcamento_brl FROM performance p JOIN bridge_movie_genre g ON p.sk_movie_id = g.sk_movie_id JOIN dim_genres d ON g.sk_genre_id = d.sk_genre_id ) SELECT nome_genero, AVG(lucro_brl) AS lucro_medio_brl, COUNT(DISTINCT sk_movie_id) AS filmes, COUNT(DISTINCT CASE WHEN orcamento_brl IS NULL THEN sk_movie_id END) AS sem_orcamento FROM genre_join GROUP BY nome_genero ORDER BY nome_genero;",
+            "result": {
+              "ok": true,
+              "columns": [
+                "nome_genero",
+                "lucro_medio_brl",
+                "filmes",
+                "sem_orcamento"
+              ],
+              "rows": [
+                [
+                  "Action",
+                  343223021.8728956,
+                  594,
+                  215
+                ],
+                [
+                  "Adventure",
+                  514678791.3929771,
+                  393,
+                  147
+                ],
+                [
+                  "Animation",
+                  303517897.374728,
+                  239,
+                  142
+                ],
+                [
+                  "Comedy",
+                  143589472.55178353,
+                  813,
+                  410
+                ],
+                [
+                  "Crime",
+                  93988989.26714286,
+                  294,
+                  128
+                ],
+                [
+                  "Documentary",
+                  5028959.4421568625,
+                  153,
+                  113
+                ],
+                [
+                  "Drama",
+                  84161852.72059368,
+                  1297,
+                  695
+                ],
+                [
+                  "Family",
+                  324648758.3319318,
+                  264,
+                  122
+                ],
+                [
+                  "Fantasy",
+                  335448446.35188234,
+                  255,
+                  121
+                ],
+                [
+                  "History",
+                  146826836.6097661,
+                  171,
+                  75
+                ],
+                [
+                  "Horror",
+                  92805277.19780679,
+                  383,
+                  215
+                ],
+                [
+                  "Music",
+                  111985444.2848,
+                  100,
+                  55
+                ],
+                [
+                  "Mystery",
+                  119462433.48792683,
+                  246,
+                  119
+                ],
+                [
+                  "Romance",
+                  98645875.98897436,
+                  312,
+                  160
+                ],
+                [
+                  "Science Fiction",
+                  520783718.3286344,
+                  227,
+                  93
+                ],
+                [
+                  "Thriller",
+                  92872345.46579455,
+                  623,
+                  302
+                ],
+                [
+                  "Tv Movie",
+                  9228474.485,
+                  10,
+                  7
+                ],
+                [
+                  "War",
+                  194016703.28296703,
+                  91,
+                  34
+                ],
+                [
+                  "Western",
+                  -3581373.251999998,
+                  20,
+                  9
+                ]
+              ],
+              "row_count": 19,
+              "max_rows": 100,
+              "truncated": false,
+              "shortened_cells": 0
+            }
+          }
+        ],
+        "model_calls": 3,
+        "model": "openrouter/free",
+        "actual_models": [
+          "nvidia/nemotron-3.5-lightning:free"
+        ],
+        "reference_date": "2026-10-04"
+      },
+      "agent_seconds": 37.833,
+      "status": "passed",
+      "reason": "Linhas e valores coincidem com a referência.",
+      "matched_query_id": "call-51cbe21e-22b1-45b8-b5be-3d9594823373"
+    },
+    {
+      "id": "avaliacoes",
+      "category": "usuarios",
+      "question": "Quais os 10 filmes mais avaliados pelos usuários locais? Mostre a quantidade de avaliações.",
+      "reference_sql": "SELECT m.titulo, r.qtd_avaliacoes_usuarios FROM dim_movies m\n        JOIN dim_reviews r USING(sk_movie_id) WHERE r.qtd_avaliacoes_usuarios>0\n        ORDER BY r.qtd_avaliacoes_usuarios DESC, m.titulo, m.sk_movie_id LIMIT 10",
+      "expected": {
+        "ok": true,
+        "columns": [
+          "titulo",
+          "qtd_avaliacoes_usuarios"
+        ],
+        "rows": [
+          [
+            "Die Hart 2: Die Harter",
+            13
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            12
+          ],
+          [
+            "Die Hart: Die Harter",
+            11
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            10
+          ],
+          [
+            "Die Hart: Die Harter",
+            10
+          ],
+          [
+            "Die Hart: Die Harter",
+            10
+          ],
+          [
+            "Die Hart: Die Harter",
+            10
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            9
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            9
+          ],
+          [
+            "Die Hart 2: Die Harter",
+            9
+          ]
+        ],
+        "row_count": 10,
+        "max_rows": 100,
+        "truncated": false,
+        "shortened_cells": 0
+      },
+      "reference_seconds": 0.145,
+      "agent": {
+        "ok": false,
+        "error": {
+          "code": "no_query_result",
+          "message": "O modelo não obteve uma consulta válida no banco."
+        },
+        "queries": [],
+        "model_calls": 1,
+        "diagnostics": {
+          "finish_reason": "stop",
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "usage": {
+            "input_tokens": 2933,
+            "output_tokens": 273,
+            "total_tokens": 3206,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 153
+            }
+          }
+        }
+      },
+      "agent_seconds": 7.679,
+      "status": "agent_error",
+      "reason": "no_query_result"
+    }
+  ],
+  "summary": {
+    "agent_error": 1,
+    "passed": 1
+  }
+}
