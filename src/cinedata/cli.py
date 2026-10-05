@@ -1,23 +1,13 @@
 """Verificação do ambiente de preparação, sem consumir cota do OpenRouter."""
 
 import argparse
+import json
 import sqlite3
 from contextlib import closing
 
 from cinedata.config import load_settings
-
-EXPECTED_TABLES = {
-    "dim_movies",
-    "fact_movies_performance",
-    "dim_genres",
-    "dim_people",
-    "dim_companies",
-    "dim_reviews",
-    "movie_reviews",
-    "bridge_movie_genre",
-    "bridge_movie_person",
-    "bridge_movie_company",
-}
+from cinedata.database import QueryLimits, execute_query
+from cinedata.schema import ANALYTICAL_TABLES
 
 
 def check_environment(require_key: bool = False) -> int:
@@ -33,11 +23,11 @@ def check_environment(require_key: bool = False) -> int:
                     "WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"
                 )
             }
-        missing = EXPECTED_TABLES - tables
+        missing = ANALYTICAL_TABLES - tables
         if missing:
             raise ValueError(f"Tabelas da atividade ausentes: {', '.join(sorted(missing))}.")
         print(f"Banco acessível em modo somente leitura: {settings.db_path}")
-        print(f"Tabelas da atividade: {len(EXPECTED_TABLES)}; total no banco: {len(tables)}")
+        print(f"Tabelas da atividade: {len(ANALYTICAL_TABLES)}; total no banco: {len(tables)}")
         print(f"Modelo configurado: {settings.model}")
         if settings.api_key:
             print("Chave OpenRouter preenchida (autenticação ainda não validada).")
@@ -57,8 +47,20 @@ def main() -> int:
     subcommands = parser.add_subparsers(dest="command", required=True)
     check = subcommands.add_parser("check", help="Verifica configuração e acesso local ao banco")
     check.add_argument("--require-key", action="store_true", help="Exige chave preenchida no .env")
+    query = subcommands.add_parser("query", help="Executa uma consulta SQL local somente leitura")
+    query.add_argument("sql", help="Uma instrução SELECT ou WITH ... SELECT")
+    query.add_argument("--max-rows", type=int, default=100, help="Limite de linhas (1 a 1000)")
     args = parser.parse_args()
-    return check_environment(require_key=args.require_key)
+    if args.command == "check":
+        return check_environment(require_key=args.require_key)
+    try:
+        result = execute_query(
+            load_settings().db_path, args.sql, limits=QueryLimits(max_rows=args.max_rows)
+        )
+    except ValueError as exc:
+        parser.error(str(exc))
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    return 0 if result["ok"] else 1
 
 
 if __name__ == "__main__":

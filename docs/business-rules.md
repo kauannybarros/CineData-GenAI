@@ -147,13 +147,3 @@ quando a pergunta ultrapassar 2016–2029 ou pressupuser um catálogo histórico
 | Gênero com maior margem média | Gênero → ponte → desempenho; média das margens | Receita positiva e orçamento informado; média não ponderada; empates |
 | Filmes mais avaliados por usuários | Filme → `dim_reviews`; quantidade local | Avaliações positivas; não usar contagem IMDb/TMDB |
 | Divergência usuários/IMDb | Filme → desempenho e `dim_reviews`; diferença absoluta | IMDb válida e avaliação local válida |
-
-## Limitações para a implementação seguinte
-
-O agente deve usar somente as dez tabelas analíticas documentadas. Consultas são de
-leitura; validação SQL, limites de linhas, tempo de execução e tratamento de erros
-serão implementados na etapa 3. Este mapeamento não substitui essas proteções.
-
-Ainda será necessário avaliar a interpretação dos prompts e comparar respostas com
-consultas de referência na etapa 5. Não há necessidade de chamadas ao OpenRouter
-para mapear ou verificar a camada Gold.
